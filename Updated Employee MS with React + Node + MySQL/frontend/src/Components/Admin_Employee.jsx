@@ -63,14 +63,28 @@ const Employee = () => {
         {viewPending ? "Show Active Employees" : "Pending Employees"}
       </button>
       <div className="mt-3">
-        <DataGrid
-          rows={viewPending ? pending_employee : employee}
-          columns={columns}
-          getRowId={(row) => row["Id no."]}
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20, 100]}
-          disableSelectionOnClick
-        />
+        {viewPending ? (
+          <DataGrid
+            rows={pending_employee}
+            columns={columns}
+            getRowId={(row) => row["Id no."]}
+            pageSize={10}
+            rowsPerPageOptions={[5, 10, 20, 100]}
+            disableSelectionOnClick
+            onRowClick={(params) => {
+              console.log("Pending Employee Row Clicked:", params.row);
+            }}
+          />
+        ) : (
+          <DataGrid
+            rows={employee}
+            columns={columns}
+            getRowId={(row) => row["Id no."]}
+            pageSize={10}
+            rowsPerPageOptions={[5, 10, 20, 100]}
+            disableSelectionOnClick
+          />
+        )}
       </div>
     </div>
   );
