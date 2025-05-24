@@ -90,6 +90,14 @@ router.get("/employee", (req, res) => {
   });
 });
 
+router.get("/pending_employee", (req, res) => {
+  const sql = "SELECT * FROM pending_users";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error" });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
 router.get("/employee/:id", (req, res) => {
   const id = req.params.id;
   const sql = "SELECT * FROM employee WHERE id = ?";

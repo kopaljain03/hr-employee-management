@@ -14,6 +14,7 @@ import Start from "./Components/Start";
 import EmployeeLogin from "./Components/EmployeeLogin";
 import EmployeeDetail from "./Components/EmployeeDetail";
 import PrivateRoute from "./Components/PrivateRoute";
+import Admin_Employee from "./Components/Admin_Employee";
 
 function App() {
   return (
@@ -33,6 +34,10 @@ function App() {
         >
           <Route path="" element={<Home />}></Route>
           <Route path="/dashboard/employee" element={<Employee />}></Route>
+          <Route
+            path="/dashboard/admin/employee"
+            element={<Admin_Employee />}
+          ></Route>
           <Route path="/dashboard/category" element={<Category />}></Route>
           <Route path="/dashboard/profile" element={<Profile />}></Route>
           <Route

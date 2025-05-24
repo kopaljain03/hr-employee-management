@@ -38,6 +38,48 @@ router.post("/employee_login", (req, res) => {
   });
 });
 
+router.post("/add_employee", (req, res) => {
+  console.log(req.body.name);
+  const sql = `INSERT INTO pending_users
+    (
+      Name,
+      \`Father Name\`,
+      \`Date of\`,
+      \`Education SSC\`,
+      \`Education HSC\`,
+      \`Education Undergrad\`,
+      \`Education Post grad.\`,
+      Reference,
+      Remarks,
+      \`Received date\`,
+      \`Age Today\`
+
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    req.body.name,
+    req.body.father_name,
+    req.body.DOB,
+    req.body.education_SSC,
+    req.body.education_HSC,
+    req.body.education_UG,
+    req.body.education_PG,
+    req.body.referance,
+    req.body.remarks,
+    req.body.DOB,
+    req.file?.filename || null,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Insert error:", err);
+      return res.json({ Status: false, Error: "Query Error" });
+    }
+    return res.json({ Status: true });
+  });
+});
+
 router.get("/detail/:id", verifyToken, verifyRole("employee"), (req, res) => {
   const id = req.params.id;
   const sql = "SELECT * FROM employee where id = ?";

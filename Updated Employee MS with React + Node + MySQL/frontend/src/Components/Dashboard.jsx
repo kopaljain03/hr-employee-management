@@ -16,7 +16,10 @@ const Dashboard = () => {
   }, []);
 
   const handleLogout = () => {
-    axios.get("http://localhost:3000/auth/logout").then((result) => {
+    const storedRole = localStorage.getItem("role");
+    var endpoint = storedRole;
+    if (storedRole == "admin") endpoint = "auth";
+    axios.get(`http://localhost:3000/${endpoint}/logout`).then((result) => {
       if (result.data.Status) {
         localStorage.removeItem("valid");
         anvigate("/");
@@ -51,7 +54,11 @@ const Dashboard = () => {
               </li>
               <li className="w-100">
                 <Link
-                  to="/dashboard/employee"
+                  to={
+                    role === "admin"
+                      ? "/dashboard/admin/employee"
+                      : "/dashboard/employee"
+                  }
                   className="nav-link px-0 align-middle text-white"
                 >
                   <i className="fs-4 bi-people ms-2"></i>
