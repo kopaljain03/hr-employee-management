@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({});
   const navigate = useNavigate();
+  const [role, setRole] = useState(""); // 🔹 Role state
 
   const fields = [
     { name: "name", label: "Name", type: "text", placeholder: "Enter Name" },
@@ -53,6 +54,10 @@ const AddEmployee = () => {
   ];
 
   useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    if (storedRole) {
+      setRole(storedRole);
+    }
     axios
       .get("http://localhost:3000/auth/category")
       .then((result) => {
@@ -81,7 +86,8 @@ const AddEmployee = () => {
       .post("http://localhost:3000/employee/add_employee", employee)
       .then((result) => {
         if (result.data.Status) {
-          navigate("/dashboard/employee");
+          if (role == "employee") navigate("/dashboard/employee");
+          else navigate("/dashboard/admin/employee");
         } else {
           alert(result.data.Error);
         }
