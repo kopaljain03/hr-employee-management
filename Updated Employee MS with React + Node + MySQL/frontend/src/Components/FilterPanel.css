@@ -1,9 +1,8 @@
 .filter-panel {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  column-gap: 1.5rem;
-  row-gap: 0.75rem;
-  padding: 1rem;
+  column-gap: 1rem;
+  row-gap: 0.5rem;
   background: #f9f9f9;
   border-radius: 8px;
 }
@@ -27,8 +26,4 @@
 .actions {
   grid-column: span 2;
   text-align: right;
-}
-
-.actions button {
-  padding: 0.5rem 1rem;
 }

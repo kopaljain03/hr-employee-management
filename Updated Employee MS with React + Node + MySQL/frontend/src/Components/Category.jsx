@@ -8,10 +8,45 @@ import { applyCombinedFilter } from "../utils/filterUtils";
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
   const [allEmployees, setAllEmployees] = useState([]); // Full unfiltered list
+  const [showSelected, setShowSelected] = useState(false);
 
   const [columns, setColumns] = useState([]);
-  const navigate = useNavigate();
 
+  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [flaggedEmployees, setFlaggedEmployees] = useState([]);
+  const navigate = useNavigate();
+  const actionColumn = {
+    field: "actions",
+    headerName: "Actions",
+    width: 180,
+    renderCell: (params) => {
+      const isSelected = selectedEmployees.some(
+        (emp) => emp["Id no."] === params.row["Id no."]
+      );
+
+      const isFlagged = flaggedEmployees.some(
+        (emp) => emp["Id no."] === params.row["Id no."]
+      );
+
+      return (
+        <div className="d-flex gap-2">
+          <button
+            className={`btn btn-sm ${isFlagged ? "btn-danger" : "btn-warning"}`}
+            onClick={() => handleFlag(params.row)}
+          >
+            {isFlagged ? "Flagged" : "Flag"}
+          </button>
+          <button
+            className={`btn btn-sm ${isSelected ? "btn-success" : "btn-info"}`}
+            onClick={() => handleSelect(params.row)}
+            disabled={isSelected}
+          >
+            {isSelected ? "Selected" : "Select"}
+          </button>
+        </div>
+      );
+    },
+  };
   useEffect(() => {
     const endpoint = "employee";
     axios
@@ -31,7 +66,7 @@ const Employee = () => {
             width: 200,
           }));
 
-          setColumns(baseColumns);
+          setColumns((prev) => [actionColumn, ...baseColumns]);
         } else {
           alert(result.data.Error);
         }
@@ -44,6 +79,21 @@ const Employee = () => {
   };
   const handleClearFilters = () => {
     setEmployee(allEmployees);
+  };
+  const handleFlag = (row) => {
+    console.log("Flagged:", row);
+    setFlaggedEmployees((prev) => {
+      const exists = prev.some((emp) => emp["Id no."] === row["Id no."]);
+      return exists ? prev : [...prev, row];
+    });
+    console.log(flaggedEmployees);
+  };
+
+  const handleSelect = (row) => {
+    setSelectedEmployees((prev) => {
+      const exists = prev.some((emp) => emp["Id no."] === row["Id no."]);
+      return exists ? prev : [...prev, row];
+    });
   };
 
   const referenceValues = ["Ref1", "Ref2", "Ref3"]; // replace dynamically if needed
@@ -74,22 +124,45 @@ const Employee = () => {
         Add Employee
       </Link>
       <FilterPanel referenceValues={referenceValues} onSearch={handleSearch} />
-      <div className="my-2">
+      <div className="my-2 d-flex gap-2">
         <button className="btn btn-secondary" onClick={handleClearFilters}>
           Clear All Filters
+        </button>
+        <button
+          className={`btn ${
+            showSelected ? "btn-outline-primary" : "btn-primary"
+          }`}
+          onClick={() => setShowSelected((prev) => !prev)}
+        >
+          {showSelected ? "Hide Selected Employees" : "Show Selected Employees"}
         </button>
       </div>
 
       <div className="mt-3">
-        <DataGrid
-          rows={employee}
-          columns={columns}
-          getRowId={(row) => row["Id no."]}
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20, 100]}
-          rowHeight={35}
-          disableSelectionOnClick
-        />
+        {!showSelected ? (
+          <DataGrid
+            rows={employee}
+            columns={columns}
+            getRowId={(row) => row["Id no."]}
+            pageSize={10}
+            rowsPerPageOptions={[5, 10, 20, 100]}
+            rowHeight={35}
+            disableSelectionOnClick
+          />
+        ) : (
+          <div>
+            <h5>Selected Employees</h5>
+            <DataGrid
+              rows={selectedEmployees}
+              columns={columns}
+              getRowId={(row) => row["Id no."]}
+              pageSize={10}
+              rowsPerPageOptions={[5, 10, 20, 100]}
+              rowHeight={35}
+              disableSelectionOnClick
+            />
+          </div>
+        )}
       </div>
     </div>
   );
