@@ -6,7 +6,7 @@ import { DataGrid } from "@mui/x-data-grid";
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
   const [pending_employee, setPendingEmployee] = useState([]);
-  const [viewPending, setViewPending] = useState(false); // toggle state
+  const [viewPending, setViewPending] = useState(true); // toggle state
 
   const [columns, setColumns] = useState([]);
   const navigate = useNavigate();
@@ -36,6 +36,10 @@ const Employee = () => {
       })
       .catch((err) => console.log(err));
   }, [viewPending]);
+  const handlePendingRowClick = (id) => {
+    console.log("Clicked Pending Employee with ID:", id);
+    navigate(`/dashboard/admin/employee/review/${id}`);
+  };
 
   const handleDelete = (id) => {
     axios
@@ -57,7 +61,7 @@ const Employee = () => {
         Add Employee
       </Link>
       <button
-        className="btn btn-primary"
+        className="btn btn-primary mx-3"
         onClick={() => setViewPending(!viewPending)}
       >
         {viewPending ? "Show Active Employees" : "Pending Employees"}
@@ -71,8 +75,11 @@ const Employee = () => {
             pageSize={10}
             rowsPerPageOptions={[5, 10, 20, 100]}
             disableSelectionOnClick
-            onRowClick={(params) => {
-              console.log("Pending Employee Row Clicked:", params.row);
+            onRowClick={(params) => handlePendingRowClick(params.row["Id no."])}
+            sx={{
+              "& .MuiDataGrid-row": {
+                cursor: "pointer",
+              },
             }}
           />
         ) : (

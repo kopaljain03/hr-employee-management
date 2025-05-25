@@ -107,28 +107,65 @@ router.get("/employee/:id", (req, res) => {
   });
 });
 
-router.put("/edit_employee/:id", (req, res) => {
+router.get("/pending_employee/:id", (req, res) => {
   const id = req.params.id;
-  const sql = `UPDATE employee 
-        set name = ?, email = ?, salary = ?, address = ?, category_id = ? 
-        Where id = ?`;
+  const sql = "SELECT * FROM pending_users WHERE `Id no.` = ?";
+  con.query(sql, [id], (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error" });
+    return res.json({ Status: true, Result: result });
+  });
+});
+
+router.post("/update_employee/:id", (req, res) => {
+  const id = req.params.id;
+  const sql = `INSERT INTO users
+    (
+      Name,
+      \`Father Name\`,
+      \`Date of\`,
+      \`Education SSC\`,
+      \`Education HSC\`,
+      \`Education Undergrad\`,
+      \`Education Post grad.\`,
+      Reference,
+      Remarks,
+      \`Received date\`,
+      \`Age Today\`
+
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
   const values = [
     req.body.name,
-    req.body.email,
-    req.body.salary,
-    req.body.address,
-    req.body.category_id,
+    req.body.father_name,
+    req.body.DOB,
+    req.body.education_SSC,
+    req.body.education_HSC,
+    req.body.education_UG,
+    req.body.education_PG,
+    req.body.referance,
+    req.body.remarks,
+    req.body.DOB,
+    req.file?.filename || null,
   ];
-  con.query(sql, [...values, id], (err, result) => {
-    if (err) return res.json({ Status: false, Error: "Query Error" + err });
-    return res.json({ Status: true, Result: result });
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Insert error:", err);
+      return res.json({ Status: false, Error: "Query Error" });
+    }
+    const sql2 = "delete from pending_users where `Id no.` = ?";
+    con.query(sql2, [id], (err, result) => {
+      if (err) return res.json({ Status: false, Error: "Query Error" + err });
+      return res.json({ Status: true, Result: result });
+    });
   });
 });
 
 router.delete("/delete_employee/:id", (req, res) => {
   const id = req.params.id;
-  const sql = "delete from employee where id = ?";
-  con.query(sql, [id], (err, result) => {
+  const sql2 = "delete from pending_users where `Id no.` = ?";
+  con.query(sql2, [id], (err, result) => {
     if (err) return res.json({ Status: false, Error: "Query Error" + err });
     return res.json({ Status: true, Result: result });
   });

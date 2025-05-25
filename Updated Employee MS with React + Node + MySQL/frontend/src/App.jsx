@@ -15,6 +15,7 @@ import EmployeeLogin from "./Components/EmployeeLogin";
 import EmployeeDetail from "./Components/EmployeeDetail";
 import PrivateRoute from "./Components/PrivateRoute";
 import Admin_Employee from "./Components/Admin_Employee";
+import ReviewAdd from "./Components/ReviewAdd";
 
 function App() {
   return (
@@ -37,6 +38,10 @@ function App() {
           <Route
             path="/dashboard/admin/employee"
             element={<Admin_Employee />}
+          ></Route>
+          <Route
+            path="/dashboard/admin/employee/review/:id"
+            element={<ReviewAdd />}
           ></Route>
           <Route path="/dashboard/category" element={<Category />}></Route>
           <Route path="/dashboard/profile" element={<Profile />}></Route>
