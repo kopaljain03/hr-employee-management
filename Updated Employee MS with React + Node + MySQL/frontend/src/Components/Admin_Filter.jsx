@@ -136,16 +136,6 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
       </div>
 
       <div className="field">
-        <label>Priority:</label>
-        <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-          <option value="">Any</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
-        </select>
-      </div>
-
-      <div className="field">
         <label>Age below:</label>
         <input value={age} onChange={(e) => setAge(e.target.value)} />
       </div>

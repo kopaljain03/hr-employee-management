@@ -78,6 +78,8 @@ const AddEmployee = () => {
           fields.forEach((field) => {
             mapped[field.name] = raw[field.sqlname] || "";
           });
+          mapped.gender = raw["gender"] || "";
+
           console.log("Fetched pending user data:", res.data.Result[0]);
           setEmployeeData(mapped);
         } else {
@@ -161,7 +163,23 @@ const AddEmployee = () => {
                 />
               </div>
             ))}
-
+            <div className="col-12">
+              <label htmlFor="gender" className="form-label">
+                Gender
+              </label>
+              <select
+                id="gender"
+                name="gender"
+                className="form-select"
+                onChange={handleChange}
+                value={employeeData.gender || ""}
+              >
+                <option value="">-- Select Gender --</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
             <span className="d-flex gap-2">
               <button
                 type="submit"

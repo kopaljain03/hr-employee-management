@@ -30,50 +30,59 @@ const Employee = () => {
       );
     },
   };
-  useEffect(() => {
-    // Fetch selected employees
-    const fetchSelectedEmployees = axios.get(
-      `http://localhost:3000/auth/selected_employee`
-    );
-
-    // Fetch final employees
-    const fetchFinalEmployees = axios.get(
-      `http://localhost:3000/auth/final_employee`
-    );
-
-    Promise.all([fetchSelectedEmployees, fetchFinalEmployees])
-      .then(([selectedRes, finalRes]) => {
-        // Handle selected employees
-        if (selectedRes.data.Status) {
-          const selectedData = selectedRes.data.Result;
-          setAllEmployees(selectedData);
-
-          const baseColumns = Object.keys(selectedData[0] || {}).map((key) => ({
+  const fetchSelectedEmployees = async () => {
+    try {
+      const res = await axios.get(
+        "http://localhost:3000/auth/selected_employee"
+      );
+      if (res.data.Status) {
+        const selectedData = res.data.Result;
+        setAllEmployees(selectedData);
+        const baseColumns = Object.keys(selectedData[0] || {}).map((key) => ({
+          field: key,
+          headerName: key
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase()),
+          width: 200,
+        }));
+        setColumns([actionColumn, ...baseColumns]);
+      } else {
+        alert(res.data.Error);
+      }
+    } catch (err) {
+      console.error("Failed to fetch selected employees:", err);
+    }
+  };
+  const fetchFinalEmployees = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/auth/final_employee");
+      if (res.data.Status) {
+        const finalData = res.data.Result;
+        setFinalEmployees(finalData);
+        const baseColumns_final = Object.keys(finalData[0] || {}).map(
+          (key) => ({
             field: key,
             headerName: key
               .replace(/_/g, " ")
               .replace(/\b\w/g, (l) => l.toUpperCase()),
             width: 200,
-            editable: ["Priority", "Remarks", "Status"].includes(key), // Only these fields are editable
-          }));
+            editable: ["Priority", "Remarks", "Status"].includes(key),
+          })
+        );
+        setfinalColumns([...baseColumns_final]);
+      } else {
+        alert(res.data.Error);
+      }
+    } catch (err) {
+      console.error("Failed to fetch final employees:", err);
+    }
+  };
 
-          setColumns((prev) => [actionColumn, ...baseColumns]);
-          setfinalColumns((prev) => [...baseColumns]);
-        } else {
-          alert(selectedRes.data.Error);
-        }
-
-        // Handle final employees
-        if (finalRes.data.Status) {
-          const finalData = finalRes.data.Result;
-          console.log("Final employees:", finalData);
-          setFinalEmployees(finalData);
-        } else {
-          alert(finalRes.data.Error);
-        }
-      })
-      .catch((err) => console.log(err));
+  useEffect(() => {
+    fetchSelectedEmployees();
+    fetchFinalEmployees();
   }, []);
+
   const processRowUpdate = async (newRow, oldRow) => {
     console.log("new row ::");
     console.log(newRow);
@@ -107,7 +116,8 @@ const Employee = () => {
       .then((result) => {
         if (result.data.Status) {
           alert(`Employee selected`);
-          window.location.reload();
+          fetchSelectedEmployees(); // ✅ Re-fetch only the selected list
+          fetchFinalEmployees();
         } else {
           alert(result.data.Error);
         }
@@ -150,6 +160,7 @@ const Employee = () => {
       <div className="mt-3">
         {viewFinal ? (
           <DataGrid
+            key="final"
             rows={finalEmployees}
             columns={finalcolumns}
             getRowId={(row) => row["Id no."]}
@@ -157,11 +168,10 @@ const Employee = () => {
             rowsPerPageOptions={[5, 10, 20, 100]}
             rowHeight={35}
             disableSelectionOnClick
-            processRowUpdate={processRowUpdate}
-            experimentalFeatures={{ newEditingApi: true }}
           />
         ) : (
           <DataGrid
+            key="selected"
             rows={allEmployees}
             columns={columns}
             getRowId={(row) => row["Id no."]}

@@ -32,37 +32,43 @@ const Employee = () => {
       );
     },
   };
-  useEffect(() => {
+  const fetchEmployees = async () => {
     const endpoint = "employee";
-    axios
-      .get(`http://localhost:3000/auth/${endpoint}`)
-      .then((result) => {
-        if (result.data.Status) {
-          const data = result.data.Result;
-          console.log("result");
-          setEmployee(data);
-          setAllEmployees(data);
-          const referenceSet = new Set();
-          data.forEach((emp) => {
-            const ref = emp.Reference || emp.reference;
-            if (ref) referenceSet.add(ref);
-          });
-          setReferenceValues([...referenceSet]);
-          console.log(result.data.Result);
-          const baseColumns = Object.keys(data[0] || {}).map((key) => ({
-            field: key,
-            headerName: key
-              .replace(/_/g, " ")
-              .replace(/\b\w/g, (l) => l.toUpperCase()),
-            width: 200,
-          }));
+    try {
+      const result = await axios.get(`http://localhost:3000/auth/${endpoint}`);
+      if (result.data.Status) {
+        const data = result.data.Result;
+        setEmployee(data);
+        setAllEmployees(data);
 
-          setColumns((prev) => [actionColumn, ...baseColumns]);
-        } else {
-          alert(result.data.Error);
-        }
-      })
-      .catch((err) => console.log(err));
+        // Set references
+        const referenceSet = new Set();
+        data.forEach((emp) => {
+          const ref = emp.Reference || emp.reference;
+          if (ref) referenceSet.add(ref);
+        });
+        setReferenceValues([...referenceSet]);
+
+        // Set columns only once
+        const baseColumns = Object.keys(data[0] || {}).map((key) => ({
+          field: key,
+          headerName: key
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase()),
+          width: 200,
+        }));
+
+        setColumns([actionColumn, ...baseColumns]);
+      } else {
+        alert(result.data.Error);
+      }
+    } catch (err) {
+      console.error("Error fetching employees:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
   }, []);
   const handlePendingRowClick = (id) => {
     console.log("Clicked Pending Employee with ID:", id);
@@ -80,7 +86,7 @@ const Employee = () => {
       .then((result) => {
         if (result.data.Status) {
           alert(`Employee selected`);
-          window.location.reload();
+          fetchEmployees();
         } else {
           alert(result.data.Error);
         }
@@ -94,17 +100,7 @@ const Employee = () => {
     setEmployee(filteredResults);
     console.log("Filtered Results:", filteredResults);
   };
-  const handleDelete = (id) => {
-    axios
-      .delete("http://localhost:3000/auth/delete_employee/" + id)
-      .then((result) => {
-        if (result.data.Status) {
-          window.location.reload();
-        } else {
-          alert(result.data.Error);
-        }
-      });
-  };
+
   return (
     <div className="px-5 mt-3">
       <FilterPanel

@@ -52,7 +52,7 @@ export function filterByNameOrFather(employees, nameInput) {
 export function filterByGender(employees, selectedGenders) {
   const lowerGenders = selectedGenders.map((g) => g.toLowerCase());
   return employees.filter((emp) =>
-    lowerGenders.includes(emp["Gender"]?.toLowerCase())
+    lowerGenders.includes(emp["gender"]?.toLowerCase())
   );
 }
 
@@ -63,11 +63,10 @@ export function filterByEducation(employees, selectedEducationLevels) {
     ug: "Education Undergrad",
     pg: "Education Post grad.",
   };
-  console.log(employees);
+
   return employees.filter((emp) =>
-    selectedEducationLevels.some((level) => {
+    selectedEducationLevels.every((level) => {
       const column = eduColumns[level];
-      console.log("column : " + column);
       return emp[column] && emp[column].toString().trim() !== "";
     })
   );
@@ -80,6 +79,42 @@ export function filterByReference(
 ) {
   return employees.filter((emp) => emp[referenceCol] === selectedReference);
 }
+export function filterByDOB(employees, selectedDOB) {
+  const targetDate = new Date(selectedDOB);
+  if (isNaN(targetDate)) return employees;
+
+  return employees.filter((emp) => {
+    const dobString = emp["Date of"] || emp["DOB"];
+
+    if (!dobString) return false;
+
+    const dob = new Date(dobString);
+    return dob.toDateString() === targetDate.toDateString();
+  });
+}
+
+export function filterByReceivingDate(employees, selectedDate) {
+  const targetDate = new Date(selectedDate);
+  if (isNaN(targetDate)) return employees;
+
+  return employees.filter((emp) => {
+    const dateStr = emp["Received date"] || emp["received_date"];
+
+    if (!dateStr) return false;
+
+    const receivedDate = new Date(dateStr);
+    return receivedDate.toDateString() === targetDate.toDateString();
+  });
+}
+export function filterByAnything(employees, searchText) {
+  const lowerSearch = searchText.toLowerCase();
+
+  return employees.filter((emp) =>
+    Object.values(emp).some(
+      (value) => value && value.toString().toLowerCase().includes(lowerSearch)
+    )
+  );
+}
 
 export function applyCombinedFilter(
   employees,
@@ -91,6 +126,9 @@ export function applyCombinedFilter(
     selectedReference,
     referenceCol = "Reference",
     age,
+    dob,
+    receivingDate,
+    anything,
   }
 ) {
   let filtered = [...employees];
@@ -116,6 +154,16 @@ export function applyCombinedFilter(
   }
   if (age) {
     filtered = filterByAge(filtered, parseInt(age));
+  }
+  if (dob) {
+    filtered = filterByDOB(filtered, dob);
+  }
+
+  if (receivingDate) {
+    filtered = filterByReceivingDate(filtered, receivingDate);
+  }
+  if (anything) {
+    filtered = filterByAnything(filtered, anything);
   }
 
   return filtered;

@@ -52,11 +52,17 @@ router.post("/add_employee", (req, res) => {
       Reference,
       Remarks,
       \`Received date\`,
-      \`Age Today\`
+      \`Age Today\`,
+      gender
 
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months start from 0
+  const dd = String(today.getDate()).padStart(2, "0");
 
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
   const values = [
     req.body.name,
     req.body.father_name,
@@ -67,7 +73,9 @@ router.post("/add_employee", (req, res) => {
     req.body.education_PG,
     req.body.referance,
     req.body.remarks,
+    formattedDate,
     req.body.DOB,
+    req.body.gender,
     req.file?.filename || null,
   ];
 

@@ -73,11 +73,17 @@ router.post("/add_employee", upload.single("image"), (req, res) => {
       Reference,
       Remarks,
       \`Received date\`,
-      \`Age Today\`
+      \`Age Today\`,
+      gender
 
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months start from 0
+  const dd = String(today.getDate()).padStart(2, "0");
 
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
   const values = [
     req.body.name,
     req.body.father_name,
@@ -88,7 +94,9 @@ router.post("/add_employee", upload.single("image"), (req, res) => {
     req.body.education_PG,
     req.body.referance,
     req.body.remarks,
+    formattedDate,
     req.body.DOB,
+    req.body.gender,
     req.file?.filename || null,
   ];
 
@@ -117,11 +125,17 @@ router.post("/add_selected_employee", upload.single("image"), (req, res) => {
       Reference,
       Remarks,
       \`Received date\`,
-      \`Age Today\`
+      \`Age Today\`,
+      gender
 
     )
-    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months start from 0
+  const dd = String(today.getDate()).padStart(2, "0");
 
+  const formattedDate = `${yyyy}-${mm}-${dd}`;
   const values = [
     req.body["Id no."],
     req.body.Name,
@@ -133,7 +147,9 @@ router.post("/add_selected_employee", upload.single("image"), (req, res) => {
     req.body["Education Post grad."],
     req.body.Reference,
     req.body.Remarks,
-    req.body["Received date"],
+    formattedDate,
+    req.body["Age Today"],
+    req.body.gender,
     req.file?.filename || null,
   ];
 
@@ -167,10 +183,11 @@ router.post("/add_final_employee", upload.single("image"), (req, res) => {
       Reference,
       Remarks,
       \`Received date\`,
-      \`Age Today\`
+      \`Age Today\`,
+      gender
 
     )
-    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const values = [
     req.body["Id no."],
@@ -184,6 +201,8 @@ router.post("/add_final_employee", upload.single("image"), (req, res) => {
     req.body.Reference,
     req.body.Remarks,
     req.body["Received date"],
+    req.body["Age Today"],
+    req.body.gender,
     req.file?.filename || null,
   ];
 
@@ -253,6 +272,7 @@ router.get("/pending_employee/:id", (req, res) => {
 
 router.post("/update_employee/:id", (req, res) => {
   const id = req.params.id;
+  console.log(req.body);
   const sql = `INSERT INTO users
     (
       Name,
@@ -264,9 +284,8 @@ router.post("/update_employee/:id", (req, res) => {
       \`Education Post grad.\`,
       Reference,
       Remarks,
-      \`Received date\`,
-      \`Age Today\`
-
+      \`Age Today\`,
+      gender
     )
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
@@ -281,6 +300,7 @@ router.post("/update_employee/:id", (req, res) => {
     req.body.referance,
     req.body.remarks,
     req.body.DOB,
+    req.body.gender,
     req.file?.filename || null,
   ];
 

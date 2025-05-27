@@ -49,7 +49,6 @@ const AddEmployee = () => {
       name: "remarks",
       label: "Remarks",
       type: "text",
-      placeholder: "1234 Main St",
     },
   ];
 
@@ -125,6 +124,23 @@ const AddEmployee = () => {
               />
             </div>
           ))}
+          <div className="col-12">
+            <label htmlFor="gender" className="form-label">
+              Gender
+            </label>
+            <select
+              id="gender"
+              name="gender"
+              className="form-select"
+              onChange={handleChange}
+              value={employee.gender || ""}
+            >
+              <option value="">-- Select Gender --</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
           <div className="col-12">
             <button type="submit" className="btn btn-primary w-100">
