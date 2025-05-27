@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./FilterPanel.css";
 
-const FilterPanel = ({ referenceValues, onSearch }) => {
+const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
   const [id, setId] = useState("");
   const [nameOrFather, setNameOrFather] = useState("");
   const [gender, setGender] = useState({
@@ -44,6 +44,19 @@ const FilterPanel = ({ referenceValues, onSearch }) => {
       selectedReference: reference,
     });
   };
+  useEffect(() => {
+    setId("");
+    setNameOrFather("");
+    setGender({ male: false, female: false, other: false });
+    setDob("");
+    setEducation({ ssc: false, hsc: false, ug: false, pg: false });
+    setReceivingDate("");
+    setWaitingPeriod("");
+    setPriority("");
+    setAge("");
+    setAnything("");
+    setReference("");
+  }, [clearTrigger]);
 
   return (
     <div className="filter-panel">
@@ -158,7 +171,9 @@ const FilterPanel = ({ referenceValues, onSearch }) => {
       </div>
 
       <div className="field actions">
-        <button onClick={handleSearchClick}>Search</button>
+        <button className="btn btn-success" onClick={handleSearchClick}>
+          Search
+        </button>
       </div>
     </div>
   );

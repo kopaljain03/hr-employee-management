@@ -4,44 +4,29 @@ import { Link, useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
 import FilterPanel from "./Admin_Filter";
 import { applyCombinedFilter } from "../utils/filterUtils";
+import { downloadExcel } from "../utils/downloadUtil";
 
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
   const [allEmployees, setAllEmployees] = useState([]); // Full unfiltered list
-  const [showSelected, setShowSelected] = useState(false);
+  const [showAll, setShowAll] = useState(false); // 🆕 state for toggling
+  const [clearFiltersTrigger, setClearFiltersTrigger] = useState(false); // NEW
+  const [referenceValues, setReferenceValues] = useState([]);
 
   const [columns, setColumns] = useState([]);
-
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
-  const [flaggedEmployees, setFlaggedEmployees] = useState([]);
   const navigate = useNavigate();
   const actionColumn = {
     field: "actions",
     headerName: "Actions",
     width: 180,
     renderCell: (params) => {
-      const isSelected = selectedEmployees.some(
-        (emp) => emp["Id no."] === params.row["Id no."]
-      );
-
-      const isFlagged = flaggedEmployees.some(
-        (emp) => emp["Id no."] === params.row["Id no."]
-      );
-
       return (
         <div className="d-flex gap-2">
           <button
-            className={`btn btn-sm ${isFlagged ? "btn-danger" : "btn-warning"}`}
-            onClick={() => handleFlag(params.row)}
-          >
-            {isFlagged ? "Flagged" : "Flag"}
-          </button>
-          <button
-            className={`btn btn-sm ${isSelected ? "btn-success" : "btn-info"}`}
+            className={`btn btn-sm btn-info`}
             onClick={() => handleSelect(params.row)}
-            disabled={isSelected}
           >
-            {isSelected ? "Selected" : "Select"}
+            Select
           </button>
         </div>
       );
@@ -57,6 +42,12 @@ const Employee = () => {
           console.log("result");
           setEmployee(data);
           setAllEmployees(data);
+          const referenceSet = new Set();
+          data.forEach((emp) => {
+            const ref = emp.Reference || emp.reference;
+            if (ref) referenceSet.add(ref);
+          });
+          setReferenceValues([...referenceSet]);
           console.log(result.data.Result);
           const baseColumns = Object.keys(data[0] || {}).map((key) => ({
             field: key,
@@ -79,24 +70,23 @@ const Employee = () => {
   };
   const handleClearFilters = () => {
     setEmployee(allEmployees);
-  };
-  const handleFlag = (row) => {
-    console.log("Flagged:", row);
-    setFlaggedEmployees((prev) => {
-      const exists = prev.some((emp) => emp["Id no."] === row["Id no."]);
-      return exists ? prev : [...prev, row];
-    });
-    console.log(flaggedEmployees);
+    setClearFiltersTrigger((prev) => !prev); // Toggle to trigger reset in child
   };
 
   const handleSelect = (row) => {
-    setSelectedEmployees((prev) => {
-      const exists = prev.some((emp) => emp["Id no."] === row["Id no."]);
-      return exists ? prev : [...prev, row];
-    });
+    console.log(row);
+    axios
+      .post(`http://localhost:3000/auth/add_selected_employee`, row)
+      .then((result) => {
+        if (result.data.Status) {
+          alert(`Employee selected`);
+          window.location.reload();
+        } else {
+          alert(result.data.Error);
+        }
+      })
+      .catch((err) => console.log(err));
   };
-
-  const referenceValues = ["Ref1", "Ref2", "Ref3"]; // replace dynamically if needed
 
   const handleSearch = (filters) => {
     console.log("Applied Filters: ", filters);
@@ -117,52 +107,48 @@ const Employee = () => {
   };
   return (
     <div className="px-5 mt-3">
-      <div className="d-flex justify-content-center">
-        <h3>Employee List</h3>
-      </div>
-      <Link to="/dashboard/add_employee" className="btn btn-success">
-        Add Employee
-      </Link>
-      <FilterPanel referenceValues={referenceValues} onSearch={handleSearch} />
+      <FilterPanel
+        referenceValues={referenceValues}
+        onSearch={handleSearch}
+        clearTrigger={clearFiltersTrigger}
+      />
       <div className="my-2 d-flex gap-2">
         <button className="btn btn-secondary" onClick={handleClearFilters}>
           Clear All Filters
         </button>
         <button
           className={`btn ${
-            showSelected ? "btn-outline-primary" : "btn-primary"
+            showAll ? "btn-primary text-white" : "btn-outline-primary"
           }`}
-          onClick={() => setShowSelected((prev) => !prev)}
+          onClick={() => setShowAll(!showAll)}
         >
-          {showSelected ? "Hide Selected Employees" : "Show Selected Employees"}
+          {showAll ? "Hide All Employees" : "Show All Employees"}
+        </button>
+        <button
+          className="btn btn-success"
+          onClick={() => downloadExcel(allEmployees, "All_Employees")}
+        >
+          Download All Employees
+        </button>
+
+        <button
+          className="btn btn-success"
+          onClick={() => downloadExcel(employee, "Filtered_Employees")}
+        >
+          Download Filtered Employees
         </button>
       </div>
 
       <div className="mt-3">
-        {!showSelected ? (
-          <DataGrid
-            rows={employee}
-            columns={columns}
-            getRowId={(row) => row["Id no."]}
-            pageSize={10}
-            rowsPerPageOptions={[5, 10, 20, 100]}
-            rowHeight={35}
-            disableSelectionOnClick
-          />
-        ) : (
-          <div>
-            <h5>Selected Employees</h5>
-            <DataGrid
-              rows={selectedEmployees}
-              columns={columns}
-              getRowId={(row) => row["Id no."]}
-              pageSize={10}
-              rowsPerPageOptions={[5, 10, 20, 100]}
-              rowHeight={35}
-              disableSelectionOnClick
-            />
-          </div>
-        )}
+        <DataGrid
+          rows={showAll ? allEmployees : employee}
+          columns={columns}
+          getRowId={(row) => row["Id no."]}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 20, 100]}
+          rowHeight={35}
+          disableSelectionOnClick
+        />
       </div>
     </div>
   );

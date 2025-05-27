@@ -82,8 +82,9 @@ const AddEmployee = () => {
     e.preventDefault();
 
     console.log(employee);
+    var endpoint = role == "employee" ? "employee" : "auth";
     axios
-      .post("http://localhost:3000/employee/add_employee", employee)
+      .post(`http://localhost:3000/${endpoint}/add_employee`, employee)
       .then((result) => {
         if (result.data.Status) {
           if (role == "employee") navigate("/dashboard/employee");
@@ -98,6 +99,14 @@ const AddEmployee = () => {
   return (
     <div className="d-flex justify-content-center align-items-center mt-3">
       <div className="p-3 rounded w-50 border">
+        <div className="d-flex justify-content-end">
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => navigate(-1)}
+          ></button>
+        </div>
         <h3 className="text-center">Add Employee</h3>
         <form className="row g-1" onSubmit={handleSubmit}>
           {fields.map((field) => (

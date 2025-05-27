@@ -61,23 +61,144 @@ const upload = multer({
 // end imag eupload
 
 router.post("/add_employee", upload.single("image"), (req, res) => {
-  const sql = `INSERT INTO employee 
-    (name,email,password, address, salary,image, category_id) 
-    VALUES (?)`;
-  bcrypt.hash(req.body.password, 10, (err, hash) => {
-    if (err) return res.json({ Status: false, Error: "Query Error" });
-    const values = [
-      req.body.name,
-      req.body.email,
-      hash,
-      req.body.address,
-      req.body.salary,
-      req.file.filename,
-      req.body.category_id,
-    ];
-    con.query(sql, [values], (err, result) => {
-      if (err) return res.json({ Status: false, Error: err });
-      return res.json({ Status: true });
+  const sql = `INSERT INTO users
+    (
+      Name,
+      \`Father Name\`,
+      \`Date of\`,
+      \`Education SSC\`,
+      \`Education HSC\`,
+      \`Education Undergrad\`,
+      \`Education Post grad.\`,
+      Reference,
+      Remarks,
+      \`Received date\`,
+      \`Age Today\`
+
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    req.body.name,
+    req.body.father_name,
+    req.body.DOB,
+    req.body.education_SSC,
+    req.body.education_HSC,
+    req.body.education_UG,
+    req.body.education_PG,
+    req.body.referance,
+    req.body.remarks,
+    req.body.DOB,
+    req.file?.filename || null,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Insert error:", err);
+      return res.json({ Status: false, Error: "Query Error" });
+    }
+    const insertedId = result.insertId; // ✅ Get the inserted ID
+
+    return res.json({ Status: true, Result: result, InsertedId: insertedId });
+  });
+});
+
+router.post("/add_selected_employee", upload.single("image"), (req, res) => {
+  const sql = `INSERT INTO selected_users
+    (
+      \`Id no.\`,
+      Name,
+      \`Father Name\`,
+      \`Date of\`,
+      \`Education SSC\`,
+      \`Education HSC\`,
+      \`Education Undergrad\`,
+      \`Education Post grad.\`,
+      Reference,
+      Remarks,
+      \`Received date\`,
+      \`Age Today\`
+
+    )
+    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    req.body["Id no."],
+    req.body.Name,
+    req.body["Father Name"],
+    req.body["Date of"],
+    req.body["Education SSC"],
+    req.body["Education HSC"],
+    req.body["Education Undergrad"],
+    req.body["Education Post grad."],
+    req.body.Reference,
+    req.body.Remarks,
+    req.body["Received date"],
+    req.file?.filename || null,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Insert error:", err);
+      return res.json({ Status: false, Error: "Query Error" });
+    }
+    const insertedId = result.insertId; // ✅ Get the inserted ID
+
+    // return res.json({ Status: true, Result: result, InsertedId: insertedId });
+    const sql2 = "delete from users where `Id no.` = ?";
+    con.query(sql2, [req.body["Id no."]], (err, result) => {
+      if (err) return res.json({ Status: false, Error: "Query Error" + err });
+      return res.json({ Status: true, Result: result, InsertedId: insertedId });
+    });
+  });
+});
+
+router.post("/add_final_employee", upload.single("image"), (req, res) => {
+  const sql = `INSERT INTO final_users
+    (
+      \`Id no.\`,
+      Name,
+      \`Father Name\`,
+      \`Date of\`,
+      \`Education SSC\`,
+      \`Education HSC\`,
+      \`Education Undergrad\`,
+      \`Education Post grad.\`,
+      Reference,
+      Remarks,
+      \`Received date\`,
+      \`Age Today\`
+
+    )
+    VALUES (?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  const values = [
+    req.body["Id no."],
+    req.body.Name,
+    req.body["Father Name"],
+    req.body["Date of"],
+    req.body["Education SSC"],
+    req.body["Education HSC"],
+    req.body["Education Undergrad"],
+    req.body["Education Post grad."],
+    req.body.Reference,
+    req.body.Remarks,
+    req.body["Received date"],
+    req.file?.filename || null,
+  ];
+
+  con.query(sql, values, (err, result) => {
+    if (err) {
+      console.error("Insert error:", err);
+      return res.json({ Status: false, Error: "Query Error" });
+    }
+    const insertedId = result.insertId; // ✅ Get the inserted ID
+
+    // return res.json({ Status: true, Result: result, InsertedId: insertedId });
+    const sql2 = "delete from selected_users where `Id no.` = ?";
+    con.query(sql2, [req.body["Id no."]], (err, result) => {
+      if (err) return res.json({ Status: false, Error: "Query Error" + err });
+      return res.json({ Status: true, Result: result, InsertedId: insertedId });
     });
   });
 });
@@ -90,6 +211,20 @@ router.get("/employee", (req, res) => {
   });
 });
 
+router.get("/selected_employee", (req, res) => {
+  const sql = "SELECT * FROM selected_users";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error" });
+    return res.json({ Status: true, Result: result });
+  });
+});
+router.get("/final_employee", (req, res) => {
+  const sql = "SELECT * FROM final_users";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error" });
+    return res.json({ Status: true, Result: result });
+  });
+});
 router.get("/pending_employee", (req, res) => {
   const sql = "SELECT * FROM pending_users";
   con.query(sql, (err, result) => {
@@ -154,10 +289,11 @@ router.post("/update_employee/:id", (req, res) => {
       console.error("Insert error:", err);
       return res.json({ Status: false, Error: "Query Error" });
     }
+    const insertedId = result.insertId; // ✅ Get the inserted ID
     const sql2 = "delete from pending_users where `Id no.` = ?";
     con.query(sql2, [id], (err, result) => {
       if (err) return res.json({ Status: false, Error: "Query Error" + err });
-      return res.json({ Status: true, Result: result });
+      return res.json({ Status: true, Result: result, InsertedId: insertedId });
     });
   });
 });

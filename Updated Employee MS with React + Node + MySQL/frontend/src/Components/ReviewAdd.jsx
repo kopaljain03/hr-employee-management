@@ -104,6 +104,8 @@ const AddEmployee = () => {
       .post(`http://localhost:3000/auth/update_employee/${id}`, employeeData)
       .then((result) => {
         if (result.data.Status) {
+          const insertedId = result.data.InsertedId;
+          alert(`Employee added with ID: ${insertedId}`);
           navigate("/dashboard/admin/employee");
         } else {
           alert(result.data.Error);
@@ -131,6 +133,14 @@ const AddEmployee = () => {
   return (
     <div className="d-flex justify-content-center align-items-center mt-3">
       <div className="p-3 rounded w-50 border">
+        <div className="d-flex justify-content-end">
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Close"
+            onClick={() => navigate(-1)}
+          ></button>
+        </div>
         <h3 className="text-center">Review Employee</h3>
         {employeeData && (
           <form className="row g-1" onSubmit={handleSubmit}>

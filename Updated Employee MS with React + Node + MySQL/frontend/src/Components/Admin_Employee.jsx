@@ -21,6 +21,7 @@ const Employee = () => {
           console.log("result");
           viewPending ? setPendingEmployee(data) : setEmployee(data);
           console.log(result.data.Result);
+
           const baseColumns = Object.keys(data[0] || {}).map((key) => ({
             field: key,
             headerName: key
@@ -55,16 +56,24 @@ const Employee = () => {
   return (
     <div className="px-5 mt-3">
       <div className="d-flex justify-content-center">
-        <h3>Employee List</h3>
+        <h3>{viewPending ? "Pending Employees" : "All Employees"}</h3>
       </div>
       <Link to="/dashboard/add_employee" className="btn btn-success">
         Add Employee
       </Link>
       <button
-        className="btn btn-primary mx-3"
-        onClick={() => setViewPending(!viewPending)}
+        className={`btn  mx-2 ${
+          !viewPending ? "btn-primary" : "btn-outline-primary"
+        }`}
+        onClick={() => setViewPending(false)}
       >
-        {viewPending ? "Show Active Employees" : "Pending Employees"}
+        Show All Employees
+      </button>
+      <button
+        className={`btn ${viewPending ? "btn-primary" : "btn-outline-primary"}`}
+        onClick={() => setViewPending(true)}
+      >
+        Show Pending Employees
       </button>
       <div className="mt-3">
         {viewPending ? (
@@ -73,6 +82,7 @@ const Employee = () => {
             columns={columns}
             getRowId={(row) => row["Id no."]}
             pageSize={10}
+            rowHeight={40}
             rowsPerPageOptions={[5, 10, 20, 100]}
             disableSelectionOnClick
             onRowClick={(params) => handlePendingRowClick(params.row["Id no."])}
