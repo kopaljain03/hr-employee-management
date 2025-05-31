@@ -61,6 +61,7 @@ const upload = multer({
 // end imag eupload
 
 router.post("/add_employee", upload.single("image"), (req, res) => {
+  // apllicants , status -> waiting
   const sql = `INSERT INTO users
     (
       Name,
@@ -223,7 +224,7 @@ router.post("/add_final_employee", upload.single("image"), (req, res) => {
 });
 
 router.get("/employee", (req, res) => {
-  const sql = "SELECT * FROM users";
+  const sql = "SELECT * FROM users"; // from applicants where status ==waiting
   con.query(sql, (err, result) => {
     if (err) return res.json({ Status: false, Error: "Query Error" });
     return res.json({ Status: true, Result: result });
@@ -245,7 +246,7 @@ router.get("/final_employee", (req, res) => {
   });
 });
 router.get("/pending_employee", (req, res) => {
-  const sql = "SELECT * FROM pending_users";
+  const sql = "SELECT * FROM pending_users"; //from applicants where status = peding
   con.query(sql, (err, result) => {
     if (err) return res.json({ Status: false, Error: "Query Error" });
     return res.json({ Status: true, Result: result });

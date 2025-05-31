@@ -13,6 +13,8 @@ const EmployeeLogin = () => {
   axios.defaults.withCredentials = true;
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log("from frontend:");
+    console.log(values);
     axios
       .post("http://localhost:3000/employee/employee_login", values)
       .then((result) => {

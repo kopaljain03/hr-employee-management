@@ -39,7 +39,7 @@ router.post("/employee_login", (req, res) => {
 });
 
 router.post("/add_employee", (req, res) => {
-  console.log(req.body.name);
+  console.log(req.body.name); // apllicants
   const sql = `INSERT INTO pending_users
     (
       Name,
