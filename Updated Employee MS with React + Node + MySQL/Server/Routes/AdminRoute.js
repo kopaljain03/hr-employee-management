@@ -220,12 +220,45 @@ router.post("/update_employee/:id", (req, res) => {
   // return res.json({ Status: true, Result: result, InsertedId: insertedId });
 });
 
-router.delete("/delete_employee/:id", (req, res) => {
+router.delete("/delete_employee/:id", verifyToken, (req, res) => {
   const id = req.params.id;
-  const sql2 = "delete from pending_users where `Id no.` = ?";
-  con.query(sql2, [id], (err, result) => {
-    if (err) return res.json({ Status: false, Error: "Query Error" + err });
-    return res.json({ Status: true, Result: result });
+
+  // Step 1: Get the employee details before deletion
+  const fetchSql = `SELECT name, fathers_name, dob FROM applicant WHERE applicant_id = ?`;
+  con.query(fetchSql, [id], (err, results) => {
+    if (err) return res.json({ Status: false, Error: "Fetch Query Error" });
+    if (results.length === 0)
+      return res.json({ Status: false, Error: "No employee found" });
+
+    const { name, fathers_name, dob } = results[0];
+
+    // Step 2: Delete the employee
+    const deleteSql = `DELETE FROM applicant WHERE applicant_id = ?`;
+    con.query(deleteSql, [id], (err) => {
+      if (err) return res.json({ Status: false, Error: "Delete Query Error" });
+
+      // Step 3: Log the deletion in deleted_candidates
+      const insertDeletedSql = `
+        INSERT INTO deleted_candidates (applicant_id, name, fathers_name, dob, deleted_by, deleted_at)
+        VALUES (?, ?, ?, ?, ?, NOW())
+      `;
+      con.query(
+        insertDeletedSql,
+        [id, name, fathers_name, dob, req.user.email], // ✅ Use logged-in admin's email
+        (err) => {
+          if (err)
+            return res.json({
+              Status: false,
+              Error: "Insert Deleted Log Error",
+            });
+
+          return res.json({
+            Status: true,
+            Message: "Employee deleted and logged",
+          });
+        }
+      );
+    });
   });
 });
 
