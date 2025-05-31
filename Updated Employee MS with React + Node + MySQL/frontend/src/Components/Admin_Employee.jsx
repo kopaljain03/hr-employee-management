@@ -56,24 +56,24 @@ const Employee = () => {
   return (
     <div className="px-5 mt-3">
       <div className="d-flex justify-content-center">
-        <h3>{viewPending ? "Pending Employees" : "All Employees"}</h3>
+        <h3>{viewPending ? "Pending Applicants" : "All Waiting Candidates"}</h3>
       </div>
-      <Link to="/dashboard/add_employee" className="btn btn-success">
-        Add Employee
+      <Link to="/dashboard/add_employee" className="btn btn-outline-primary">
+        Add applicant
       </Link>
       <button
-        className={`btn  mx-2 ${
+        className={`btn mx-2 ${viewPending ? "btn-primary" : "btn-outline-primary"}`}
+        onClick={() => setViewPending(true)}
+      >
+        Show Pending Applicants
+      </button>
+       <button
+        className={`btn ${
           !viewPending ? "btn-primary" : "btn-outline-primary"
         }`}
         onClick={() => setViewPending(false)}
       >
-        Show All Employees
-      </button>
-      <button
-        className={`btn ${viewPending ? "btn-primary" : "btn-outline-primary"}`}
-        onClick={() => setViewPending(true)}
-      >
-        Show Pending Employees
+        Show All Candidates
       </button>
       <div className="mt-3">
         {viewPending ? (
