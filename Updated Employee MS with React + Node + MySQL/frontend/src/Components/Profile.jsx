@@ -66,7 +66,7 @@ const Employee = () => {
               .replace(/_/g, " ")
               .replace(/\b\w/g, (l) => l.toUpperCase()),
             width: 200,
-            editable: ["Priority", "Remarks", "Status"].includes(key),
+            editable: ["remarks"].includes(key),
           })
         );
         setfinalColumns([...baseColumns_final]);
@@ -163,7 +163,7 @@ const Employee = () => {
             key="final"
             rows={finalEmployees}
             columns={finalcolumns}
-            getRowId={(row) => row["Id no."]}
+            getRowId={(row) => row["applicant_id"]}
             pageSize={10}
             rowsPerPageOptions={[5, 10, 20, 100]}
             rowHeight={35}
@@ -174,7 +174,7 @@ const Employee = () => {
             key="selected"
             rows={allEmployees}
             columns={columns}
-            getRowId={(row) => row["Id no."]}
+            getRowId={(row) => row["applicant_id"]}
             pageSize={10}
             rowsPerPageOptions={[5, 10, 20, 100]}
             rowHeight={35}

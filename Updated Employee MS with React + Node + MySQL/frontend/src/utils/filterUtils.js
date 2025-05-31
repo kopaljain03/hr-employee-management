@@ -18,7 +18,7 @@ export function filterByAge(employees, maxAge) {
   const today = new Date();
 
   return employees.filter((emp) => {
-    const dobString = emp["Date of"] || emp["DOB"];
+    const dobString = emp["Date of"] || emp["dob"];
     console.log("dobString : " + dobString);
     if (!dobString) return false;
 
@@ -37,15 +37,15 @@ export function filterByAge(employees, maxAge) {
 
 export function filterById(employees, idText) {
   const idSet = parseIdInput(idText);
-  return employees.filter((emp) => idSet.has(parseInt(emp["Id no."])));
+  return employees.filter((emp) => idSet.has(parseInt(emp["applicant_id"])));
 }
 
 export function filterByNameOrFather(employees, nameInput) {
   const lowerName = nameInput.toLowerCase();
   return employees.filter(
     (emp) =>
-      emp["Name"]?.toLowerCase().includes(lowerName) ||
-      emp["Father Name"]?.toLowerCase().includes(lowerName)
+      emp["name"]?.toLowerCase().includes(lowerName) ||
+      emp["fathers_name"]?.toLowerCase().includes(lowerName)
   );
 }
 
@@ -58,10 +58,10 @@ export function filterByGender(employees, selectedGenders) {
 
 export function filterByEducation(employees, selectedEducationLevels) {
   const eduColumns = {
-    ssc: "Education SSC",
-    hsc: "Education HSC",
-    ug: "Education Undergrad",
-    pg: "Education Post grad.",
+    ssc: "ssc",
+    hsc: "hsc",
+    ug: "ug",
+    pg: "pg",
   };
 
   return employees.filter((emp) =>
@@ -75,21 +75,23 @@ export function filterByEducation(employees, selectedEducationLevels) {
 export function filterByReference(
   employees,
   selectedReference,
-  referenceCol = "Reference"
+  referenceCol = "reference"
 ) {
   return employees.filter((emp) => emp[referenceCol] === selectedReference);
 }
 export function filterByDOB(employees, selectedDOB) {
-  const targetDate = new Date(selectedDOB);
-  if (isNaN(targetDate)) return employees;
+  if (!selectedDOB) return employees;
+
+  // Format selected DOB as YYYY-MM-DD
+  const selected = new Date(selectedDOB).toISOString().split("T")[0];
 
   return employees.filter((emp) => {
-    const dobString = emp["Date of"] || emp["DOB"];
-
+    const dobString = emp["Date of"] || emp["dob"];
     if (!dobString) return false;
 
-    const dob = new Date(dobString);
-    return dob.toDateString() === targetDate.toDateString();
+    const dobDateOnly = new Date(dobString).toISOString().split("T")[0];
+    console.log(dobDateOnly, selected);
+    return dobDateOnly === selected;
   });
 }
 
@@ -124,7 +126,7 @@ export function applyCombinedFilter(
     selectedGenders = [],
     selectedEducationLevels = [],
     selectedReference,
-    referenceCol = "Reference",
+    referenceCol = "reference",
     age,
     dob,
     receivingDate,

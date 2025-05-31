@@ -13,56 +13,57 @@ const AddEmployee = () => {
       label: "Name",
       type: "text",
       placeholder: "Enter Name",
-      sqlname: "Name",
     },
     {
-      name: "father_name",
-      label: "Father Name",
+      name: "fathers_name",
+      label: "Father's Name",
       type: "text",
       placeholder: "Enter father's name",
-      sqlname: "Father Name",
     },
     {
-      name: "DOB",
-      label: "Date-of-birth",
+      name: "dob",
+      label: "Date of Birth",
       type: "date",
-      sqlname: "Date of",
     },
     {
-      name: "education_SSC",
-      label: "SSC marks",
+      name: "ssc",
+      label: "SSC Marks",
       type: "text",
-      sqlname: "Education SSC",
     },
     {
-      name: "education_HSC",
-      label: "HSC marks",
+      name: "hsc",
+      label: "HSC Marks",
       type: "text",
-      sqlname: "Education HSC",
     },
     {
-      name: "education_UG",
-      label: "Undergrad marks",
+      name: "ug",
+      label: "Undergraduate Marks",
       type: "text",
-      sqlname: "Education Undergrad",
     },
     {
-      name: "education_PG",
-      label: "Post Grad Marks",
+      name: "pg",
+      label: "Postgraduate Marks",
       type: "text",
-      sqlname: "Education Post grad.",
     },
     {
-      name: "referance",
-      label: "Referance",
+      name: "reference",
+      label: "Reference",
       type: "text",
-      sqlname: "Reference",
+    },
+    {
+      name: "received_date",
+      label: "Received Date",
+      type: "date",
     },
     {
       name: "remarks",
       label: "Remarks",
       type: "text",
-      sqlname: "Remarks",
+    },
+    {
+      name: "age",
+      label: "Age",
+      type: "number",
     },
   ];
 
@@ -76,7 +77,7 @@ const AddEmployee = () => {
           const mapped = {};
 
           fields.forEach((field) => {
-            mapped[field.name] = raw[field.sqlname] || "";
+            mapped[field.name] = raw[field.name] || "";
           });
           mapped.gender = raw["gender"] || "";
 

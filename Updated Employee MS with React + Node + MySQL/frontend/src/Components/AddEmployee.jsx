@@ -10,46 +10,24 @@ const AddEmployee = () => {
   const fields = [
     { name: "name", label: "Name", type: "text", placeholder: "Enter Name" },
     {
-      name: "father_name",
-      label: "Father Name",
+      name: "fathers_name", // ✅ changed to match backend
+      label: "Father's Name",
       type: "text",
       placeholder: "Enter father's name",
     },
+    { name: "dob", label: "Date of Birth", type: "date" },
+    { name: "age", label: "Age", type: "number" }, // ✅ new field
+    { name: "ssc", label: "SSC Marks", type: "text" }, // ✅ renamed
+    { name: "hsc", label: "HSC Marks", type: "text" },
+    { name: "ug", label: "Undergrad Marks", type: "text" },
+    { name: "pg", label: "Post Grad Marks", type: "text" },
+    { name: "reference", label: "Reference", type: "text" }, // ✅ renamed
     {
-      name: "DOB",
-      label: "Date-of-birth",
+      name: "received_date",
+      label: "Received Date",
       type: "date",
-    },
-    {
-      name: "education_SSC",
-      label: "SSC marks",
-      type: "text",
-    },
-    {
-      name: "education_HSC",
-      label: "HSC marks",
-      type: "text",
-    },
-    {
-      name: "education_UG",
-      label: "Undergrad marks",
-      type: "text",
-    },
-    {
-      name: "education_PG",
-      label: "Post Grad Marks",
-      type: "text",
-    },
-    {
-      name: "referance",
-      label: "Referance",
-      type: "text",
-    },
-    {
-      name: "remarks",
-      label: "Remarks",
-      type: "text",
-    },
+    }, // ✅ new field
+    { name: "remarks", label: "Remarks", type: "text" },
   ];
 
   useEffect(() => {
@@ -57,16 +35,6 @@ const AddEmployee = () => {
     if (storedRole) {
       setRole(storedRole);
     }
-    axios
-      .get("http://localhost:3000/auth/category")
-      .then((result) => {
-        if (result.data.Status) {
-          setCategory(result.data.Result);
-        } else {
-          alert(result.data.Error);
-        }
-      })
-      .catch((err) => console.log(err));
   }, []);
 
   const handleChange = (e) => {

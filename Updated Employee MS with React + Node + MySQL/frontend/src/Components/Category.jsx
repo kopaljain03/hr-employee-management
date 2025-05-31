@@ -139,7 +139,7 @@ const Employee = () => {
         <DataGrid
           rows={showAll ? allEmployees : employee}
           columns={columns}
-          getRowId={(row) => row["Id no."]}
+          getRowId={(row) => row["applicant_id"]}
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20, 100]}
           rowHeight={35}

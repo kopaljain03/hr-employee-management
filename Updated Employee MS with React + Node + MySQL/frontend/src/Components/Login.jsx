@@ -19,7 +19,7 @@ const Login = () => {
         if (result.data.loginStatus) {
           localStorage.setItem("valid", true);
           localStorage.setItem("role", result.data.role);
-          navigate("/dashboard");
+          navigate("dashboard/admin/employee");
         } else {
           setError(result.data.Error);
         }

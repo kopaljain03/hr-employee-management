@@ -21,12 +21,7 @@ const Employee = () => {
           console.log("result");
           viewPending ? setPendingEmployee(data) : setEmployee(data);
           console.log(result.data.Result);
-          const hiddenFields = [
-            "Priority",
-            "Joining Date",
-            "Status",
-            "Remarks",
-          ];
+          const hiddenFields = ["status"];
           const baseColumns = Object.keys(data[0] || {})
             .filter((key) => !hiddenFields.includes(key))
             .map((key) => ({
@@ -84,7 +79,7 @@ const Employee = () => {
         <DataGrid
           rows={viewPending ? pending_employee : employee}
           columns={columns}
-          getRowId={(row) => row["Id no."]}
+          getRowId={(row) => row["applicant_id"]}
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20, 100]}
           rowHeight={40}

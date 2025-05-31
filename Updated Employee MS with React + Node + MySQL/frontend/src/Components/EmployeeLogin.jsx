@@ -22,7 +22,7 @@ const EmployeeLogin = () => {
           console.log(result.data.loginStatus);
           localStorage.setItem("valid", true);
           localStorage.setItem("role", result.data.role);
-          navigate("/dashboard");
+          navigate("/dashboard/employee");
         } else {
           setError(result.data.Error);
         }

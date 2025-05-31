@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.post("/employee_login", (req, res) => {
   console.log(req.body.email);
-  const sql = "SELECT * from employee Where email = ?";
+  const sql = "SELECT * from users Where email = ?";
   con.query(sql, [req.body.email], (err, result) => {
     if (err) return res.json({ loginStatus: false, Error: "Query error" });
     if (result.length > 0) {
@@ -40,48 +40,27 @@ router.post("/employee_login", (req, res) => {
 
 router.post("/add_employee", (req, res) => {
   console.log(req.body.name); // apllicants
-  const sql = `INSERT INTO pending_users
-    (
-      Name,
-      \`Father Name\`,
-      \`Date of\`,
-      \`Education SSC\`,
-      \`Education HSC\`,
-      \`Education Undergrad\`,
-      \`Education Post grad.\`,
-      Reference,
-      Remarks,
-      \`Received date\`,
-      \`Age Today\`,
-      gender
+  const sql = `INSERT INTO applicant 
+    (name, fathers_name, dob, gender, age, ssc, hsc, ug, pg, reference, received_date, remarks, status) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`;
 
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months start from 0
-  const dd = String(today.getDate()).padStart(2, "0");
-
-  const formattedDate = `${yyyy}-${mm}-${dd}`;
   const values = [
     req.body.name,
-    req.body.father_name,
-    req.body.DOB,
-    req.body.education_SSC,
-    req.body.education_HSC,
-    req.body.education_UG,
-    req.body.education_PG,
-    req.body.referance,
-    req.body.remarks,
-    formattedDate,
-    req.body.DOB,
+    req.body.fathers_name,
+    req.body.dob,
     req.body.gender,
-    req.file?.filename || null,
+    req.body.age,
+    req.body.ssc,
+    req.body.hsc,
+    req.body.ug,
+    req.body.pg,
+    req.body.reference,
+    req.body.received_date,
+    req.body.remarks,
   ];
 
   con.query(sql, values, (err, result) => {
     if (err) {
-      console.error("Insert error:", err);
       return res.json({ Status: false, Error: "Query Error" });
     }
     return res.json({ Status: true });

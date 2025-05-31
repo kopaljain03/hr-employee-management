@@ -80,12 +80,14 @@ const Employee = () => {
           <DataGrid
             rows={pending_employee}
             columns={columns}
-            getRowId={(row) => row["Id no."]}
+            getRowId={(row) => row["applicant_id"]}
             pageSize={10}
             rowHeight={40}
             rowsPerPageOptions={[5, 10, 20, 100]}
             disableSelectionOnClick
-            onRowClick={(params) => handlePendingRowClick(params.row["Id no."])}
+            onRowClick={(params) =>
+              handlePendingRowClick(params.row["applicant_id"])
+            }
             sx={{
               "& .MuiDataGrid-row": {
                 cursor: "pointer",
@@ -96,7 +98,7 @@ const Employee = () => {
           <DataGrid
             rows={employee}
             columns={columns}
-            getRowId={(row) => row["Id no."]}
+            getRowId={(row) => row["applicant_id"]}
             pageSize={10}
             rowsPerPageOptions={[5, 10, 20, 100]}
             disableSelectionOnClick
