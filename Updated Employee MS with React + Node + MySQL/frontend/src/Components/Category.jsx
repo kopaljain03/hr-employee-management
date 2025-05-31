@@ -102,7 +102,10 @@ const Employee = () => {
   };
 
   return (
-    <div className="px-5 mt-3">
+    <div
+      className="px-5 mt-3"
+      style={{ maxHeight: "600px", maxWidth: "1250px", overflow: "auto" }}
+    >
       <FilterPanel
         referenceValues={referenceValues}
         onSearch={handleSearch}
@@ -135,7 +138,7 @@ const Employee = () => {
         </button>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-3" style={{ height: 300, width: "100%" }}>
         <DataGrid
           rows={showAll ? allEmployees : employee}
           columns={columns}

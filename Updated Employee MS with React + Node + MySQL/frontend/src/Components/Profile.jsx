@@ -126,7 +126,15 @@ const Employee = () => {
   };
 
   return (
-    <div className="px-5 mt-3">
+    <div
+      className="px-5 mt-3"
+      style={{
+        maxWidth: "1000px",
+        maxHeight: "500px",
+        margin: "auto",
+        padding: "1rem",
+      }}
+    >
       <div className="my-2 d-flex gap-2">
         <button
           className={`btn ${
@@ -159,27 +167,31 @@ const Employee = () => {
 
       <div className="mt-3">
         {viewFinal ? (
-          <DataGrid
-            key="final"
-            rows={finalEmployees}
-            columns={finalcolumns}
-            getRowId={(row) => row["applicant_id"]}
-            pageSize={10}
-            rowsPerPageOptions={[5, 10, 20, 100]}
-            rowHeight={35}
-            disableSelectionOnClick
-          />
+          <div style={{ height: 500, width: "100%" }}>
+            <DataGrid
+              key="final"
+              rows={finalEmployees}
+              columns={finalcolumns}
+              getRowId={(row) => row["applicant_id"]}
+              pageSize={10}
+              rowsPerPageOptions={[5, 10, 20, 100]}
+              rowHeight={35}
+              disableSelectionOnClick
+            />
+          </div>
         ) : (
-          <DataGrid
-            key="selected"
-            rows={allEmployees}
-            columns={columns}
-            getRowId={(row) => row["applicant_id"]}
-            pageSize={10}
-            rowsPerPageOptions={[5, 10, 20, 100]}
-            rowHeight={35}
-            disableSelectionOnClick
-          />
+          <div style={{ height: 500, width: "100%" }}>
+            <DataGrid
+              key="selected"
+              rows={allEmployees}
+              columns={columns}
+              getRowId={(row) => row["applicant_id"]}
+              pageSize={10}
+              rowsPerPageOptions={[5, 10, 20, 100]}
+              rowHeight={35}
+              disableSelectionOnClick
+            />
+          </div>
         )}
       </div>
     </div>

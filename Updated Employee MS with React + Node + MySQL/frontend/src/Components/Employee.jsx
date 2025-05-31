@@ -52,7 +52,15 @@ const Employee = () => {
       });
   };
   return (
-    <div className="px-5 mt-3">
+    <div
+      className="px-5 mt-3"
+      style={{
+        maxWidth: "1000px",
+        maxHeight: "500px",
+        margin: "auto",
+        padding: "1rem",
+      }}
+    >
       <div className="d-flex justify-content-center">
         <h3>{viewPending ? "Pending Employees" : "All Employees"}</h3>
       </div>
@@ -76,15 +84,17 @@ const Employee = () => {
       </button>
 
       <div className="mt-3">
-        <DataGrid
-          rows={viewPending ? pending_employee : employee}
-          columns={columns}
-          getRowId={(row) => row["applicant_id"]}
-          pageSize={10}
-          rowsPerPageOptions={[5, 10, 20, 100]}
-          rowHeight={40}
-          disableSelectionOnClick
-        />
+        <div style={{ height: 500, width: "100%" }}>
+          <DataGrid
+            rows={viewPending ? pending_employee : employee}
+            columns={columns}
+            getRowId={(row) => row["applicant_id"]}
+            pageSize={10}
+            rowsPerPageOptions={[5, 10, 20, 100]}
+            rowHeight={35}
+            disableSelectionOnClick
+          />
+        </div>
       </div>
     </div>
   );
