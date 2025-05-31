@@ -94,7 +94,7 @@ const Dashboard = () => {
                   title="Manage Employees"
                 >
                   <i className="fs-5 bi-people me-2"></i>
-                  {isSidebarOpen && <span>Manage Employees</span>}
+                  {isSidebarOpen && <span>Manage Candidates</span>}
                 </Link>
               </li>
               {role === "admin" && (
@@ -106,7 +106,7 @@ const Dashboard = () => {
                       title="Filter Employee"
                     >
                       <i className="fs-5 bi-columns me-2"></i>
-                      {isSidebarOpen && <span>Filter Employee</span>}
+                      {isSidebarOpen && <span>Filter Candidates</span>}
                     </Link>
                   </li>
                   <li>
@@ -116,7 +116,7 @@ const Dashboard = () => {
                       title="Selected Employees"
                     >
                       <i className="fs-5 bi-person me-2"></i>
-                      {isSidebarOpen && <span>Selected Employees</span>}
+                      {isSidebarOpen && <span>Selected Candidates</span>}
                     </Link>
                   </li>
                 </>
