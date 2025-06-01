@@ -72,7 +72,7 @@ router.post("/check_employee_exists", (req, res) => {
     }
 
     if (results.length > 0) {
-      return res.json({ exists: true });
+      return res.json({ exists: true, Results: results[0] });
     }
 
     return res.json({ exists: false });
@@ -297,6 +297,7 @@ router.post("/update_employee/:id", (req, res) => {
   });
   // return res.json({ Status: true, Result: result, InsertedId: insertedId });
 });
+
 router.post("/check_employee_exists_for_update", (req, res) => {
   const { name, fathers_name, currentId } = req.body;
 

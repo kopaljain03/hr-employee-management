@@ -57,7 +57,7 @@ const AddEmployee = () => {
       .then((res) => {
         if (res.data.exists) {
           const proceed = window.confirm(
-            "An employee with the same name and father's name already exists. Do you still want to add them?"
+            `id ${res.data.Results.applicant_id} has the same name and fathers name please do confirm humanly by DOB if you want an entry or not , we do not like to have a duplicate entry !`
           );
           if (!proceed) return;
         }
