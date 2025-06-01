@@ -308,7 +308,7 @@ const Employee = () => {
 
   const handleShowModal = (row) => {
     setCurrentRow(row);
-    setFormData({ priority: row.priority || "", remarks: row.remarks || "" });
+    setFormData({ priority: row.priority || "", remarks: "" });
     setShowModal(true);
   };
 
