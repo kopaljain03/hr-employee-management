@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
+import { getColumnWidths } from "../utils/widthUtil";
 
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
@@ -21,13 +22,14 @@ const Employee = () => {
           console.log("result");
           viewPending ? setPendingEmployee(data) : setEmployee(data);
           console.log(result.data.Result);
+          const widths = getColumnWidths(data);
 
           const baseColumns = Object.keys(data[0] || {}).map((key) => ({
             field: key,
             headerName: key
               .replace(/_/g, " ")
               .replace(/\b\w/g, (l) => l.toUpperCase()),
-            width: 200,
+            width: widths[key] || 130,
           }));
 
           setColumns(baseColumns);
@@ -70,12 +72,14 @@ const Employee = () => {
         Add applicant
       </Link>
       <button
-        className={`btn mx-2 ${viewPending ? "btn-primary" : "btn-outline-primary"}`}
+        className={`btn mx-2 ${
+          viewPending ? "btn-primary" : "btn-outline-primary"
+        }`}
         onClick={() => setViewPending(true)}
       >
         Show Pending Applicants
       </button>
-       <button
+      <button
         className={`btn ${
           !viewPending ? "btn-primary" : "btn-outline-primary"
         }`}

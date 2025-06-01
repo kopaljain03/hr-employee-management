@@ -3,7 +3,8 @@ import "./FilterPanel.css";
 
 const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
   const [id, setId] = useState("");
-  const [nameOrFather, setNameOrFather] = useState("");
+  const [fathername, setFathername] = useState("");
+  const [username, setUsername] = useState("");
   const [gender, setGender] = useState({
     male: false,
     female: false,
@@ -32,7 +33,8 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
 
     onSearch({
       idText: id,
-      nameText: nameOrFather,
+      username: username,
+      fathername: fathername,
       selectedGenders,
       dob,
       selectedEducationLevels: selectedEducation,
@@ -46,7 +48,8 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
   };
   useEffect(() => {
     setId("");
-    setNameOrFather("");
+    setUsername("");
+    setFathername("");
     setGender({ male: false, female: false, other: false });
     setDob("");
     setEducation({ ssc: false, hsc: false, ug: false, pg: false });
@@ -64,13 +67,16 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
         <label>ID:</label>
         <input value={id} onChange={(e) => setId(e.target.value)} />
       </div>
-
       <div className="field">
-        <label>Name or Father Name:</label>
+        <label>Father Name:</label>
         <input
-          value={nameOrFather}
-          onChange={(e) => setNameOrFather(e.target.value)}
+          value={fathername}
+          onChange={(e) => setFathername(e.target.value)}
         />
+      </div>
+      <div className="field">
+        <label>Name:</label>
+        <input value={username} onChange={(e) => setUsername(e.target.value)} />
       </div>
 
       <div className="field">
@@ -127,13 +133,13 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
         />
       </div>
 
-      <div className="field">
+      {/* <div className="field">
         <label>Waiting (days):</label>
         <input
           value={waitingPeriod}
           onChange={(e) => setWaitingPeriod(e.target.value)}
         />
-      </div>
+      </div> */}
 
       <div className="field">
         <label>Age below:</label>

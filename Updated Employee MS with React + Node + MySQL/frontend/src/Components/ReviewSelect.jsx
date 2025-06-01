@@ -134,7 +134,7 @@ const AddEmployee = () => {
             if (result.data.Status) {
               const insertedId = result.data.InsertedId;
               alert(`Employee updated with ID: ${insertedId}`);
-              navigate("/dashboard/admin/employee");
+              navigate("/dashboard/category");
             } else {
               alert(result.data.Error);
             }

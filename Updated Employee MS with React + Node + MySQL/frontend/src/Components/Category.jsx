@@ -5,6 +5,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import FilterPanel from "./Admin_Filter";
 import { applyCombinedFilter } from "../utils/filterUtils";
 import { downloadExcel } from "../utils/downloadUtil";
+import { getColumnWidths } from "../utils/widthUtil";
 
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
@@ -21,16 +22,62 @@ const Employee = () => {
     width: 180,
     renderCell: (params) => {
       return (
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 align-items-center">
           <button
-            className={`btn btn-sm btn-info`}
+            className="btn btn-sm btn-info"
             onClick={() => handleSelect(params.row)}
           >
             Select
           </button>
+          <button
+            className="btn btn-sm btn-warning "
+            style={{
+              fontSize: "0.8rem",
+              padding: "1px 2px",
+
+              height: "auto",
+            }}
+            onClick={() => handleEdit(params.row)}
+          >
+            Edit
+          </button>
+          <button
+            className="btn btn-sm btn-danger py-0 px-0"
+            style={{
+              fontSize: "0.8rem",
+              padding: "1px 3px",
+
+              height: "auto",
+            }}
+            onClick={() => handleDelete(params.row)}
+          >
+            Delete
+          </button>
         </div>
       );
     },
+  };
+  const handleEdit = (row) => {
+    navigate(`/dashboard/admin/employee/reviewselect/${row.applicant_id}`);
+  };
+
+  const handleDelete = (row) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${row.name}?`
+    );
+    if (!confirmDelete) return;
+
+    axios
+      .delete(`http://localhost:3000/auth/delete_employee/${row.applicant_id}`)
+      .then((result) => {
+        if (result.data.Status) {
+          alert("Employee deleted");
+          fetchEmployees();
+        } else {
+          alert(result.data.Error);
+        }
+      })
+      .catch((err) => console.error("Error deleting employee:", err));
   };
   const fetchEmployees = async () => {
     const endpoint = "employee";
@@ -50,12 +97,14 @@ const Employee = () => {
         setReferenceValues([...referenceSet]);
 
         // Set columns only once
+        const widths = getColumnWidths(data);
+
         const baseColumns = Object.keys(data[0] || {}).map((key) => ({
           field: key,
           headerName: key
             .replace(/_/g, " ")
             .replace(/\b\w/g, (l) => l.toUpperCase()),
-          width: 200,
+          width: widths[key] || 130,
         }));
 
         setColumns([actionColumn, ...baseColumns]);
@@ -103,8 +152,8 @@ const Employee = () => {
 
   return (
     <div
-      className="px-5 mt-3"
-      style={{ maxHeight: "600px", maxWidth: "1250px", overflow: "auto" }}
+      className="px-5 mt-3 container-sm"
+      style={{ maxHeight: "600px", maxWidth: "1100px" }}
     >
       <FilterPanel
         referenceValues={referenceValues}

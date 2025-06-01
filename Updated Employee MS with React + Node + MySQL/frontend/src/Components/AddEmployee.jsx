@@ -16,17 +16,12 @@ const AddEmployee = () => {
       placeholder: "Enter father's name",
     },
     { name: "dob", label: "Date of Birth", type: "date" },
-    { name: "age", label: "Age", type: "number" }, // ✅ new field
     { name: "ssc", label: "SSC Marks", type: "text" }, // ✅ renamed
     { name: "hsc", label: "HSC Marks", type: "text" },
     { name: "ug", label: "Undergrad Marks", type: "text" },
     { name: "pg", label: "Post Grad Marks", type: "text" },
     { name: "reference", label: "Reference", type: "text" }, // ✅ renamed
-    {
-      name: "received_date",
-      label: "Received Date",
-      type: "date",
-    }, // ✅ new field
+
     { name: "remarks", label: "Remarks", type: "text" },
   ];
 
@@ -47,20 +42,40 @@ const AddEmployee = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    console.log(employee);
-    var endpoint = role == "employee" ? "employee" : "auth";
+    const requiredFields = ["name", "fathers_name", "dob", "ssc", "gender"];
+    for (const field of requiredFields) {
+      if (!employee[field]) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+    }
     axios
-      .post(`http://localhost:3000/${endpoint}/add_employee`, employee)
-      .then((result) => {
-        if (result.data.Status) {
-          if (role == "employee") navigate("/dashboard/employee");
-          else navigate("/dashboard/admin/employee");
-        } else {
-          alert(result.data.Error);
-        }
+      .post("http://localhost:3000/auth/check_employee_exists", {
+        name: employee.name,
+        fathers_name: employee.fathers_name,
       })
-      .catch((err) => console.log(err));
+      .then((res) => {
+        if (res.data.exists) {
+          const proceed = window.confirm(
+            "An employee with the same name and father's name already exists. Do you still want to add them?"
+          );
+          if (!proceed) return;
+        }
+
+        // Now proceed to actual insert
+        const endpoint = role === "employee" ? "employee" : "auth";
+        axios
+          .post(`http://localhost:3000/${endpoint}/add_employee`, employee)
+          .then((result) => {
+            if (result.data.Status) {
+              if (role === "employee") navigate("/dashboard/employee");
+              else navigate("/dashboard/admin/employee");
+            } else {
+              alert(result.data.Error);
+            }
+          })
+          .catch((err) => console.log(err));
+      });
   };
 
   return (
@@ -74,7 +89,7 @@ const AddEmployee = () => {
             onClick={() => navigate(-1)}
           ></button>
         </div>
-        <h3 className="text-center">Add Employee</h3>
+        <h3 className="text-center">Add Applicant</h3>
         <form className="row g-1" onSubmit={handleSubmit}>
           {fields.map((field) => (
             <div className="col-12" key={field.name}>
@@ -89,6 +104,9 @@ const AddEmployee = () => {
                 placeholder={field.placeholder}
                 autoComplete="off"
                 onChange={handleChange}
+                required={["name", "fathers_name", "dob", "ssc"].includes(
+                  field.name
+                )}
               />
             </div>
           ))}
@@ -102,6 +120,7 @@ const AddEmployee = () => {
               className="form-select"
               onChange={handleChange}
               value={employee.gender || ""}
+              required
             >
               <option value="">-- Select Gender --</option>
               <option value="Male">Male</option>
@@ -112,7 +131,7 @@ const AddEmployee = () => {
 
           <div className="col-12">
             <button type="submit" className="btn btn-primary w-100">
-              Add Employee
+              Add Applicant
             </button>
           </div>
         </form>

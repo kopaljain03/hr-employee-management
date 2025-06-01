@@ -117,12 +117,26 @@ export function filterByAnything(employees, searchText) {
     )
   );
 }
+export function filterByUserName(employees, nameInput) {
+  const lowerName = nameInput.toLowerCase();
+  return employees.filter((emp) =>
+    emp["name"]?.toLowerCase().includes(lowerName)
+  );
+}
+
+export function filterByFatherName(employees, fatherInput) {
+  const lowerFather = fatherInput.toLowerCase();
+  return employees.filter((emp) =>
+    emp["fathers_name"]?.toLowerCase().includes(lowerFather)
+  );
+}
 
 export function applyCombinedFilter(
   employees,
   {
     idText,
-    nameText,
+    username,
+    fathername,
     selectedGenders = [],
     selectedEducationLevels = [],
     selectedReference,
@@ -138,11 +152,12 @@ export function applyCombinedFilter(
   if (idText) {
     filtered = filterById(filtered, idText);
   }
-
-  if (nameText) {
-    filtered = filterByNameOrFather(filtered, nameText);
+  if (username) {
+    filtered = filterByUserName(filtered, username);
   }
-
+  if (fathername) {
+    filtered = filterByFatherName(filtered, fathername);
+  }
   if (selectedGenders.length > 0) {
     filtered = filterByGender(filtered, selectedGenders);
   }

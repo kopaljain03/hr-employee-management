@@ -5,6 +5,17 @@ import bcrypt from "bcrypt";
 import { verifyToken, verifyRole } from "../middleware/verifyToken.js";
 
 const router = express.Router();
+const calculateAge = (birthdate) => {
+  const birth = new Date(birthdate);
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    age--;
+  }
+  return age;
+};
+const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
 
 router.post("/employee_login", (req, res) => {
   console.log(req.body.email);
@@ -44,18 +55,21 @@ router.post("/add_employee", (req, res) => {
     (name, fathers_name, dob, gender, age, ssc, hsc, ug, pg, reference, received_date, remarks, status) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')`;
 
+  // ✅ Calculate age from DOB
+
+  const age = calculateAge(req.body.dob);
   const values = [
     req.body.name,
     req.body.fathers_name,
     req.body.dob,
     req.body.gender,
-    req.body.age,
+    age,
     req.body.ssc,
     req.body.hsc,
     req.body.ug,
     req.body.pg,
     req.body.reference,
-    req.body.received_date,
+    today,
     req.body.remarks,
   ];
 
@@ -67,14 +81,14 @@ router.post("/add_employee", (req, res) => {
   });
 });
 
-router.get("/detail/:id", verifyToken, verifyRole("employee"), (req, res) => {
-  const id = req.params.id;
-  const sql = "SELECT * FROM employee where id = ?";
-  con.query(sql, [id], (err, result) => {
-    if (err) return res.json({ Status: false });
-    return res.json(result);
-  });
-});
+// router.get("/detail/:id", verifyToken, verifyRole("employee"), (req, res) => {
+//   const id = req.params.id;
+//   const sql = "SELECT * FROM employee where id = ?";
+//   con.query(sql, [id], (err, result) => {
+//     if (err) return res.json({ Status: false });
+//     return res.json(result);
+//   });
+// });
 
 router.get("/logout", verifyToken, verifyRole("employee"), (req, res) => {
   res.clearCookie("token");
