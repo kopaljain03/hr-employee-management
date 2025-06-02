@@ -23,6 +23,7 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
   const [age, setAge] = useState("");
   const [anything, setAnything] = useState("");
   const [reference, setReference] = useState("");
+  const [status, setStatus] = useState("");
 
   const handleSearchClick = () => {
     // Convert checkbox selections into arrays for consistency
@@ -44,6 +45,7 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
       age,
       anything,
       selectedReference: reference,
+      status,
     });
   };
   useEffect(() => {
@@ -59,6 +61,7 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
     setAge("");
     setAnything("");
     setReference("");
+    setStatus("");
   }, [clearTrigger]);
 
   return (
@@ -165,7 +168,16 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
           ))}
         </select>
       </div>
-
+      <div className="field">
+        <label>Status:</label>
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="">All</option>
+          <option value="pending">Pending</option>
+          <option value="candidate">Candidate</option>
+          <option value="selected">Selected</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
       <div className="field actions">
         <button className="btn btn-success" onClick={handleSearchClick}>
           Search

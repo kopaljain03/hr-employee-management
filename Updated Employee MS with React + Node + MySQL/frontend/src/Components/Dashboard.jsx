@@ -116,7 +116,7 @@ const Dashboard = () => {
                       title="Selected Employees"
                     >
                       <i className="fs-5 bi-person me-2"></i>
-                      {isSidebarOpen && <span>Selected Candidates</span>}
+                      {isSidebarOpen && <span>Deleted Candidates</span>}
                     </Link>
                   </li>
                 </>

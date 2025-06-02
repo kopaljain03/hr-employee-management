@@ -62,6 +62,7 @@ const upload = multer({
   storage: storage,
 });
 // end imag eupload
+
 router.post("/check_employee_exists", (req, res) => {
   const { name, fathers_name } = req.body;
 
@@ -121,38 +122,38 @@ router.post("/add_employee", upload.single("image"), (req, res) => {
 });
 
 router.post("/add_selected_employee", upload.single("image"), (req, res) => {
-  const sql = `INSERT INTO selected (applicant_id, select_date) VALUES (?, ?)`;
+  const sql = `INSERT INTO selected (applicant_id, select_date, priority) VALUES (?, ?, ?)`;
   const select_date = new Date();
-  con.query(sql, [req.body.applicant_id, select_date], (err, result) => {
-    if (err) return res.json({ Status: false, Error: "Query Error" });
-    const updateStatus = `UPDATE applicant SET status = 'selected' WHERE applicant_id = ?`;
-    con.query(updateStatus, [req.body.applicant_id], (err) => {
+  con.query(
+    sql,
+    [req.body.applicant_id, select_date, req.body.priority],
+    (err, result) => {
       if (err) return res.json({ Status: false, Error: "Query Error" });
-      return res.json({
-        Status: true,
-        Result: result,
-        InsertedId: req.body.applicant_id,
+      const updateStatus = `UPDATE applicant SET status = 'selected' WHERE applicant_id = ?`;
+      con.query(updateStatus, [req.body.applicant_id], (err) => {
+        if (err) return res.json({ Status: false, Error: "Query Error" });
+        return res.json({
+          Status: true,
+          Result: result,
+          InsertedId: req.body.applicant_id,
+        });
       });
-    });
-  });
+    }
+  );
 
   // return res.json({ Status: true, Result: result, InsertedId: insertedId });
 });
 
 router.post("/add_final_employee", upload.single("image"), (req, res) => {
-  const sql = `INSERT INTO closed (applicant_id, remarks, priority) VALUES (?, ?, ?)`;
-  con.query(
-    sql,
-    [req.body.applicant_id, req.body.remarks, req.body.priority],
-    (err, result) => {
+  const sql = `INSERT INTO closed (applicant_id, remarks) VALUES (?, ?)`;
+  con.query(sql, [req.body.applicant_id, req.body.remarks], (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error" });
+    const updateStatus = `UPDATE applicant SET status = 'closed' WHERE applicant_id = ?`;
+    con.query(updateStatus, [req.body.applicant_id], (err) => {
       if (err) return res.json({ Status: false, Error: "Query Error" });
-      const updateStatus = `UPDATE applicant SET status = 'closed' WHERE applicant_id = ?`;
-      con.query(updateStatus, [req.body.applicant_id], (err) => {
-        if (err) return res.json({ Status: false, Error: "Query Error" });
-        return res.json({ Status: true });
-      });
-    }
-  );
+      return res.json({ Status: true });
+    });
+  });
 
   // return res.json({ Status: true, Result: result, InsertedId: insertedId });
 });
@@ -172,7 +173,32 @@ router.get("/employee", (req, res) => {
     return res.json({ Status: true, Result: formattedResults });
   });
 });
+router.get("/all_employee", (req, res) => {
+  const sql = `
+    SELECT 
+      a.*, 
+      c.remarks AS final_remarks,
+      s.select_date AS selected_date,
+      s.priority AS priority
+    FROM applicant a
+    LEFT JOIN closed c ON a.applicant_id = c.applicant_id
+    LEFT JOIN selected s ON a.applicant_id = s.applicant_id
+  `;
 
+  con.query(sql, (err, results) => {
+    if (err) return res.json({ Status: false, Error: "Query Error" });
+
+    const formattedResults = results.map((emp) => ({
+      ...emp,
+      dob: emp.dob ? formatDate(emp.dob) : "",
+      received_date: emp.received_date ? formatDate(emp.received_date) : "",
+      selected_date: emp.selected_date ? formatDate(emp.selected_date) : "",
+      age: emp.dob ? calculateAge(emp.dob) : "",
+    }));
+
+    return res.json({ Status: true, Result: formattedResults });
+  });
+});
 router.get("/selected_employee", (req, res) => {
   const sql = "SELECT * FROM applicant where status='selected'";
   con.query(sql, (err, result) => {
@@ -191,7 +217,6 @@ router.get("/final_employee", (req, res) => {
   const sql = `
     SELECT 
       a.*, 
-      c.priority, 
       c.remarks AS final_remarks 
     FROM 
       applicant a
@@ -261,16 +286,13 @@ router.post("/update_employee/:id", (req, res) => {
     name = ?, 
     fathers_name = ?, 
     dob = ?, 
-    gender = ?, 
-    age = ?, 
+    gender = ?,
     ssc = ?, 
     hsc = ?, 
     ug = ?, 
     pg = ?, 
     reference = ?, 
-    received_date = ?, 
-    remarks = ?, 
-    status = 'candidate'
+    remarks = ?
     WHERE applicant_id = ?`; // ✅ update instead of insert
 
   const values = [
@@ -278,13 +300,11 @@ router.post("/update_employee/:id", (req, res) => {
     req.body.fathers_name || null,
     req.body.dob || null,
     req.body.gender || null,
-    req.body.age || null,
     req.body.ssc || null,
     req.body.hsc || null,
     req.body.ug || null,
     req.body.pg || null,
     req.body.reference || null,
-    req.body.received_date || null,
     req.body.remarks || null,
     id, // ✅ include ID at the end for the WHERE clause
   ];
@@ -312,6 +332,18 @@ router.post("/check_employee_exists_for_update", (req, res) => {
     }
 
     return res.json({ exists: false });
+  });
+});
+router.get("/deleted_employees", (req, res) => {
+  const query = `SELECT * FROM deleted_candidates ORDER BY deleted_at DESC`;
+
+  con.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching deleted candidates:", err);
+      return res.json({ Status: false, Error: "Database error" });
+    }
+
+    return res.json({ Status: true, Result: results });
   });
 });
 

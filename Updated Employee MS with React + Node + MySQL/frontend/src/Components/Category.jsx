@@ -6,6 +6,8 @@ import FilterPanel from "./Admin_Filter";
 import { applyCombinedFilter } from "../utils/filterUtils";
 import { downloadExcel } from "../utils/downloadUtil";
 import { getColumnWidths } from "../utils/widthUtil";
+import FinalizeModal from "./FinalizeModal";
+import SelectModal from "./SelectModal";
 
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
@@ -15,38 +17,126 @@ const Employee = () => {
   const [referenceValues, setReferenceValues] = useState([]);
 
   const [columns, setColumns] = useState([]);
+  const [showFinalizeModal, setShowFinalizeModal] = useState(false);
+  const [currentRow, setCurrentRow] = useState(null);
+  const [finalizeFormData, setFinalizeFormData] = useState({ remarks: "" });
+  const [showSelectModal, setShowSelectModal] = useState(false);
+  const [selectFormData, setSelectFormData] = useState({
+    priority: "",
+  });
+  const handleSelectClick = (row) => {
+    setCurrentRow(row);
+    setSelectFormData({ priority: "" });
+    setShowSelectModal(true);
+  };
+
+  const handleSelectModalChange = (e) => {
+    const { name, value } = e.target;
+    setSelectFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectSubmit = () => {
+    const payload = { ...currentRow, ...selectFormData };
+
+    axios
+      .post(`http://localhost:3000/auth/add_selected_employee`, payload)
+      .then((result) => {
+        if (result.data.Status) {
+          alert(`Employee selected`);
+          fetchEmployees();
+          setShowSelectModal(false);
+        } else {
+          alert(result.data.Error);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleFinalizeClick = (row) => {
+    setCurrentRow(row);
+    setFinalizeFormData({ remarks: "" });
+    setShowFinalizeModal(true);
+  };
+
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setFinalizeFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFinalizeSubmit = async () => {
+    try {
+      const payload = { ...currentRow, ...finalizeFormData };
+      const result = await axios.post(
+        `http://localhost:3000/auth/add_final_employee`,
+        payload
+      );
+      if (result.data.Status) {
+        alert("Employee finalized!");
+        fetchEmployees();
+        setShowFinalizeModal(false);
+      } else {
+        alert(result.data.Error);
+      }
+    } catch (err) {
+      console.error("Error finalizing employee:", err);
+    }
+  };
+
   const navigate = useNavigate();
   const actionColumn = {
     field: "actions",
     headerName: "Actions",
     width: 180,
     renderCell: (params) => {
+      const status = params.row.status?.toLowerCase();
+
+      const isCandidate = status === "candidate";
+      const isSelected = status === "selected";
+      const isClosedOrPending = status === "closed" || status === "pending";
+
       return (
         <div className="d-flex gap-2 align-items-center">
+          {isCandidate && (
+            <button
+              className="btn btn-sm btn-info"
+              onClick={() => handleSelectClick(params.row)}
+            >
+              Select
+            </button>
+          )}
+
+          {isSelected && (
+            <button
+              className="btn btn-sm btn-success"
+              onClick={() => handleFinalizeClick(params.row)}
+            >
+              Finalize
+            </button>
+          )}
+
+          {isClosedOrPending && (
+            <button className="btn btn-sm btn-secondary" disabled>
+              Select
+            </button>
+          )}
+
           <button
-            className="btn btn-sm btn-info"
-            onClick={() => handleSelect(params.row)}
-          >
-            Select
-          </button>
-          <button
-            className="btn btn-sm btn-warning "
+            className="btn btn-sm btn-warning"
             style={{
               fontSize: "0.8rem",
               padding: "1px 2px",
-
               height: "auto",
             }}
             onClick={() => handleEdit(params.row)}
           >
             Edit
           </button>
+
           <button
             className="btn btn-sm btn-danger py-0 px-0"
             style={{
               fontSize: "0.8rem",
               padding: "1px 3px",
-
               height: "auto",
             }}
             onClick={() => handleDelete(params.row)}
@@ -57,6 +147,7 @@ const Employee = () => {
       );
     },
   };
+
   const handleEdit = (row) => {
     navigate(`/dashboard/admin/employee/reviewselect/${row.applicant_id}`);
   };
@@ -80,9 +171,8 @@ const Employee = () => {
       .catch((err) => console.error("Error deleting employee:", err));
   };
   const fetchEmployees = async () => {
-    const endpoint = "employee";
     try {
-      const result = await axios.get(`http://localhost:3000/auth/${endpoint}`);
+      const result = await axios.get(`http://localhost:3000/auth/all_employee`);
       if (result.data.Status) {
         const data = result.data.Result;
         setEmployee(data);
@@ -107,7 +197,19 @@ const Employee = () => {
           width: widths[key] || 130,
         }));
 
-        setColumns([actionColumn, ...baseColumns]);
+        const statusColumnIndex = baseColumns.findIndex(
+          (col) => col.field === "status"
+        );
+        let statusColumn = null;
+
+        if (statusColumnIndex !== -1) {
+          statusColumn = baseColumns.splice(statusColumnIndex, 1)[0]; // remove and capture
+        }
+
+        // Reorder: Actions, Status, then rest
+        setColumns(
+          [actionColumn, statusColumn, ...baseColumns].filter(Boolean)
+        );
       } else {
         alert(result.data.Error);
       }
@@ -119,10 +221,7 @@ const Employee = () => {
   useEffect(() => {
     fetchEmployees();
   }, []);
-  const handlePendingRowClick = (id) => {
-    console.log("Clicked Pending Employee with ID:", id);
-    navigate(`/dashboard/admin/employee/review/${id}`);
-  };
+
   const handleClearFilters = () => {
     setEmployee(allEmployees);
     setClearFiltersTrigger((prev) => !prev); // Toggle to trigger reset in child
@@ -198,6 +297,20 @@ const Employee = () => {
           disableSelectionOnClick
         />
       </div>
+      <FinalizeModal
+        show={showFinalizeModal}
+        onClose={() => setShowFinalizeModal(false)}
+        onChange={handleModalChange}
+        onSubmit={handleFinalizeSubmit}
+        data={finalizeFormData}
+      />
+      <SelectModal
+        show={showSelectModal}
+        onClose={() => setShowSelectModal(false)}
+        onChange={handleSelectModalChange}
+        onSubmit={handleSelectSubmit}
+        data={selectFormData}
+      />
     </div>
   );
 };

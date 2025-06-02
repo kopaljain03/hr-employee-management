@@ -51,19 +51,9 @@ const AddEmployee = () => {
       type: "text",
     },
     {
-      name: "received_date",
-      label: "Received Date",
-      type: "date",
-    },
-    {
       name: "remarks",
       label: "Remarks",
       type: "text",
-    },
-    {
-      name: "age",
-      label: "Age",
-      type: "number",
     },
   ];
   const formatDate = (dateString) => {

@@ -13,6 +13,12 @@ export function parseIdInput(input) {
   });
   return idSet;
 }
+export function filterByStatus(employees, selectedStatus) {
+  if (!selectedStatus) return employees; // "All" case
+  return employees.filter(
+    (emp) => emp["status"]?.toLowerCase() === selectedStatus.toLowerCase()
+  );
+}
 
 export function filterByAge(employees, maxAge) {
   const today = new Date();
@@ -145,6 +151,7 @@ export function applyCombinedFilter(
     dob,
     receivingDate,
     anything,
+    status,
   }
 ) {
   let filtered = [...employees];
@@ -181,6 +188,9 @@ export function applyCombinedFilter(
   }
   if (anything) {
     filtered = filterByAnything(filtered, anything);
+  }
+  if (status) {
+    filtered = filterByStatus(filtered, status);
   }
 
   return filtered;
