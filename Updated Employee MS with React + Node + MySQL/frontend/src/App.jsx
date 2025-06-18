@@ -9,7 +9,6 @@ import Category from "./Components/Category";
 import Profile from "./Components/Profile";
 
 import AddEmployee from "./Components/AddEmployee";
-import Start from "./Components/Start";
 import EmployeeLogin from "./Components/EmployeeLogin";
 import EmployeeDetail from "./Components/EmployeeDetail";
 import Admin_Employee from "./Components/Admin_Employee";
