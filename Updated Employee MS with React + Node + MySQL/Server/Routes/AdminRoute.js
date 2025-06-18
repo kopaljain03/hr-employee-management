@@ -27,24 +27,36 @@ const formatDate = (isoString) => {
   return `${yyyy}-${mm}-${dd}`;
 };
 
-router.post("/adminlogin", (req, res) => {
-  const sql = "SELECT * from users Where email = ? and password = ?";
-  con.query(sql, [req.body.email, req.body.password], (err, result) => {
+router.post("/login", (req, res) => {
+  const sql = "SELECT * FROM users WHERE email = ?";
+  con.query(sql, [req.body.email], (err, result) => {
     if (err) return res.json({ loginStatus: false, Error: "Query error" });
-    if (result.length > 0) {
-      const email = result[0].email;
-      const token = jwt.sign(
-        { role: "admin", email: email, id: result[0].id },
-        "jwt_secret_key",
-        { expiresIn: "1d" }
-      );
-      res.cookie("token", token);
-      return res.json({ loginStatus: true, role: "admin" });
-    } else {
-      return res.json({ loginStatus: false, Error: "wrong email or password" });
+    if (result.length === 0)
+      return res.json({ loginStatus: false, Error: "User not found" });
+
+    const user = result[0];
+
+    // Check password
+    if (req.body.password !== user.password) {
+      return res.json({ loginStatus: false, Error: "Incorrect password" });
     }
+
+    // Create token if needed
+    const token = jwt.sign(
+      { role: user.role, email: user.email, id: user.id },
+      "jwt_secret_key",
+      { expiresIn: "1d" }
+    );
+    res.cookie("token", token);
+
+    return res.json({
+      loginStatus: true,
+      role: user.role,
+      id: user.id,
+    });
   });
 });
+
 
 // image upload
 const storage = multer.diskStorage({
@@ -292,7 +304,8 @@ router.post("/update_employee/:id", (req, res) => {
     ug = ?, 
     pg = ?, 
     reference = ?, 
-    remarks = ?
+    remarks = ?,
+    status=?
     WHERE applicant_id = ?`; // ✅ update instead of insert
 
   const values = [
@@ -306,6 +319,7 @@ router.post("/update_employee/:id", (req, res) => {
     req.body.pg || null,
     req.body.reference || null,
     req.body.remarks || null,
+    req.body.status || "candidate", // ✅ default to 'pending' if not provided
     id, // ✅ include ID at the end for the WHERE clause
   ];
 
@@ -388,40 +402,40 @@ router.delete("/delete_employee/:id", verifyToken, (req, res) => {
     });
   });
 });
+router.get("/admin_count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS admin FROM applicant WHERE status = 'pending'";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error: " + err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-// router.get("/admin_count", (req, res) => {
-//   const sql = "select count(id) as admin from admin";
-//   con.query(sql, (err, result) => {
-//     if (err) return res.json({ Status: false, Error: "Query Error" + err });
-//     return res.json({ Status: true, Result: result });
-//   });
-// });
+router.get("/employee_count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS employee FROM applicant WHERE status = 'candidate'";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error: " + err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-// router.get("/employee_count", (req, res) => {
-//   const sql = "select count(id) as employee from employee";
-//   con.query(sql, (err, result) => {
-//     if (err) return res.json({ Status: false, Error: "Query Error" + err });
-//     return res.json({ Status: true, Result: result });
-//   });
-// });
+router.get("/salary_count", (req, res) => {
+  const sql = "SELECT COUNT(*) AS salaryOFEmp FROM applicant WHERE status = 'selected'";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error: " + err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-// router.get("/salary_count", (req, res) => {
-//   const sql = "select sum(salary) as salaryOFEmp from employee";
-//   con.query(sql, (err, result) => {
-//     if (err) return res.json({ Status: false, Error: "Query Error" + err });
-//     return res.json({ Status: true, Result: result });
-//   });
-// });
+// Get list of all users
+router.get("/user_records", (req, res) => {
+  const sql = "SELECT name, email, role FROM users";
+  con.query(sql, (err, result) => {
+    if (err) return res.json({ Status: false, Error: "Query Error: " + err.message });
+    return res.json({ Status: true, Result: result });
+  });
+});
 
-// router.get("/admin_records", (req, res) => {
-//   const sql = "select * from admin";
-//   con.query(sql, (err, result) => {
-//     if (err) return res.json({ Status: false, Error: "Query Error" + err });
-//     return res.json({ Status: true, Result: result });
-//   });
-// });
-
-router.get("/logout", verifyToken, verifyRole("admin"), (req, res) => {
+router.get("/logout", verifyToken, (req, res) => {
   res.clearCookie("token");
   return res.json({ Status: true });
 });

@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from 'sweetalert2';
+
 
 const AddEmployee = () => {
   const navigate = useNavigate();
@@ -82,7 +84,11 @@ const AddEmployee = () => {
           console.log("Fetched pending user data:", res.data.Result[0]);
           setEmployeeData(mapped);
         } else {
-          alert(res.data.Error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: result.data.Error,
+          });
         }
       })
       .catch((err) => console.log(err));
@@ -99,7 +105,7 @@ const AddEmployee = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+console.log("submitteddddd !!!")
     axios
       .post("http://localhost:3000/auth/check_employee_exists_for_update", {
         name: employeeData.name,
@@ -115,6 +121,7 @@ const AddEmployee = () => {
         }
 
         // Step 2: Proceed to update
+        employeeData.status = "candidate";
         axios
           .post(
             `http://localhost:3000/auth/update_employee/${id}`,
@@ -123,10 +130,19 @@ const AddEmployee = () => {
           .then((result) => {
             if (result.data.Status) {
               const insertedId = result.data.InsertedId;
-              alert(`Employee updated with ID: ${insertedId}`);
+              Swal.fire({
+                icon: "success",
+                title: "Applicant Updated",
+                text: `Applicant updated with ID: ${insertedId}`,
+              });
+
               navigate("/dashboard/category");
             } else {
-              alert(result.data.Error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: result.data.Error,
+              });
             }
           })
           .catch((err) => console.log(err));
@@ -137,15 +153,28 @@ const AddEmployee = () => {
       .delete(`http://localhost:3000/auth/delete_employee/${id}`)
       .then((res) => {
         if (res.data.Status) {
-          alert("Employee deleted successfully.");
+          Swal.fire({
+            icon: "success",
+            title: "Deleted",
+            text: "Applicant deleted successfully.",
+          });
+
           navigate("/dashboard/admin/employee"); // Redirect after delete
         } else {
-          alert("Error: " + res.data.Error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: result.data.Error,
+          });
         }
       })
       .catch((err) => {
         console.error("Delete failed:", err);
-        alert("Something went wrong while deleting.");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Something went wrong while deleting.",
+        });
       });
   };
 

@@ -17,21 +17,22 @@ const Dashboard = () => {
       setRole(storedRole);
     }
   }, []);
-
   const handleLogout = () => {
-    const storedRole = localStorage.getItem("role");
-    var endpoint = storedRole === "admin" ? "auth" : storedRole;
-    axios.get(`http://localhost:3000/${endpoint}/logout`).then((result) => {
-      if (result.data.Status) {
-        localStorage.removeItem("valid");
-        navigate("/");
-      }
-    });
+    axios
+      .get("http://localhost:3000/auth/logout", { withCredentials: true })
+      .then((result) => {
+        if (result.data.Status) {
+          localStorage.removeItem("valid");
+          localStorage.removeItem("role");
+          navigate("/");
+        }
+      })
+      .catch((err) => console.error("Logout error:", err));
   };
 
   return (
-    <div className="container-fluid">
-      <div className="row flex-nowrap">
+    <div className="container-fluid h-100" style={{zoom: 0.9}}>
+      <div className="row flex-nowrap h-100">
         {/* Sidebar */}
         <motion.div
           animate={{ width: isSidebarOpen ? 270 : 60 }}
@@ -136,9 +137,18 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <div className="col p-0 m-0">
-          <div className="p-2 d-flex justify-content-center shadow">
-            <h4>Casual CV Management System</h4>
-          </div>
+          <div
+  className="p-2 d-flex justify-content-center shadow bg-white"
+  style={{
+    position: "sticky",
+    top: 0,
+    right: 0,
+    zIndex: 1000,
+  }}
+>
+  <h4 className="m-0">Casual CV Management System</h4>
+</div>
+
           <Outlet />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 const AddEmployee = () => {
   const navigate = useNavigate();
@@ -107,55 +108,108 @@ const AddEmployee = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    axios
-      .post("http://localhost:3000/auth/check_employee_exists_for_update", {
-        name: employeeData.name,
-        fathers_name: employeeData.fathers_name,
-        currentId: id,
-      })
-      .then((res) => {
-        if (res.data.exists) {
-          const proceed = window.confirm(
-            "An employee with the same name and father's name already exists. Do you still want to update this record?"
-          );
-          if (!proceed) return;
+    try {
+      // 🔍 Check if employee exists
+      const res = await axios.post(
+        "http://localhost:3000/auth/check_employee_exists_for_update",
+        {
+          name: employeeData.name,
+          fathers_name: employeeData.fathers_name,
+          currentId: id,
         }
+      );
 
-        // Step 2: Proceed to update
-        axios
-          .post(
-            `http://localhost:3000/auth/update_employee/${id}`,
-            employeeData
-          )
-          .then((result) => {
-            if (result.data.Status) {
-              const insertedId = result.data.InsertedId;
-              alert(`Employee updated with ID: ${insertedId}`);
-              navigate("/dashboard/admin/employee");
-            } else {
-              alert(result.data.Error);
-            }
-          })
-          .catch((err) => console.log(err));
+      // ⚠️ Confirm if duplicate found
+      if (res.data.exists) {
+        const result = await Swal.fire({
+          title: "Possible Duplicate",
+          text: "An employee with the same name and father's name already exists. Do you still want to update this record?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, update it",
+          cancelButtonText: "No, cancel",
+        });
+
+        if (!result.isConfirmed) return;
+      }
+
+      // ✅ Prepare update data
+      const updatedData = {
+        ...employeeData,
+        status: "candidate",
+      };
+
+      // 🔄 Perform update
+      const result = await axios.post(
+        `http://localhost:3000/auth/update_employee/${id}`,
+        updatedData
+      );
+
+      if (result.data.Status) {
+        const insertedId = result.data.InsertedId;
+        Swal.fire({
+          icon: "success",
+          title: "Employee Updated",
+          text: `Employee updated with ID: ${insertedId}`,
+        });
+        navigate("/dashboard/admin/employee");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.data.Error,
+        });
+      }
+    } catch (err) {
+      console.error("Error during update flow:", err);
+
+      // 🔴 Decide which error it was based on context
+      const isExistCheckError = err?.config?.url?.includes(
+        "check_employee_exists_for_update"
+      );
+      const errorTitle = isExistCheckError ? "Check Failed" : "Update Failed";
+      const errorMessage = isExistCheckError
+        ? "Something went wrong while checking employee existence."
+        : "Something went wrong while updating.";
+
+      Swal.fire({
+        icon: "error",
+        title: errorTitle,
+        text: errorMessage,
       });
+    }
   };
+
   const handleDelete = () => {
     axios
       .delete(`http://localhost:3000/auth/delete_employee/${id}`)
       .then((res) => {
         if (res.data.Status) {
-          alert("Employee deleted successfully.");
+          Swal.fire({
+            icon: "success",
+            title: "Deleted",
+            text: "Employee deleted successfully.",
+          });
+
           navigate("/dashboard/admin/employee"); // Redirect after delete
         } else {
-          alert("Error: " + res.data.Error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: `Error: ${res.data.Error}`,
+          });
         }
       })
       .catch((err) => {
         console.error("Delete failed:", err);
-        alert("Something went wrong while deleting.");
+        Swal.fire({
+          icon: "error",
+          title: "Delete Failed",
+          text: "Something went wrong while deleting.",
+        });
       });
   };
 

@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
 
 const AddEmployee = () => {
   const [employee, setEmployee] = useState({});
@@ -45,7 +47,11 @@ const AddEmployee = () => {
     const requiredFields = ["name", "fathers_name", "dob", "ssc", "gender"];
     for (const field of requiredFields) {
       if (!employee[field]) {
-        alert("Please fill in all required fields.");
+        Swal.fire({
+          icon: "error",
+          title: "Missing Information",
+          text: `Please fill out the Name, Father's Name, DoB, Gender, SSC fields.`,
+        });
         return;
       }
     }
@@ -68,10 +74,14 @@ const AddEmployee = () => {
           .post(`http://localhost:3000/${endpoint}/add_employee`, employee)
           .then((result) => {
             if (result.data.Status) {
-              if (role === "employee") navigate("/dashboard/employee");
+              if (role === "user") navigate("/dashboard/employee");
               else navigate("/dashboard/admin/employee");
             } else {
-              alert(result.data.Error);
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: result.data.Error,
+              });
             }
           })
           .catch((err) => console.log(err));

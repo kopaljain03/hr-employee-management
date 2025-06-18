@@ -65,7 +65,14 @@ const FilterPanel = ({ referenceValues, onSearch, clearTrigger }) => {
   }, [clearTrigger]);
 
   return (
-    <div className="filter-panel">
+    <div className="filter-panel"
+        onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSearchClick();
+      }
+    }}
+    >
       <div className="field">
         <label>ID:</label>
         <input value={id} onChange={(e) => setId(e.target.value)} />

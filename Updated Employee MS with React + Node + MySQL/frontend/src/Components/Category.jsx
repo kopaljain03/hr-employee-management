@@ -8,6 +8,7 @@ import { downloadExcel } from "../utils/downloadUtil";
 import { getColumnWidths } from "../utils/widthUtil";
 import FinalizeModal from "./FinalizeModal";
 import SelectModal from "./SelectModal";
+import Swal from "sweetalert2";
 
 const Employee = () => {
   const [employee, setEmployee] = useState([]);
@@ -42,11 +43,20 @@ const Employee = () => {
       .post(`http://localhost:3000/auth/add_selected_employee`, payload)
       .then((result) => {
         if (result.data.Status) {
-          alert(`Employee selected`);
+          Swal.fire({
+            icon: "info",
+            title: "Employee Selected",
+            text: "Employee selected",
+          });
+
           fetchEmployees();
           setShowSelectModal(false);
         } else {
-          alert(result.data.Error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: result.data.Error,
+          });
         }
       })
       .catch((err) => console.log(err));
@@ -60,6 +70,7 @@ const Employee = () => {
 
   const handleModalChange = (e) => {
     const { name, value } = e.target;
+    console.log(name, value);
     setFinalizeFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -71,11 +82,20 @@ const Employee = () => {
         payload
       );
       if (result.data.Status) {
-        alert("Employee finalized!");
+        Swal.fire({
+          icon: "success",
+          title: "Finalized",
+          text: "Employee finalized!",
+        });
+
         fetchEmployees();
         setShowFinalizeModal(false);
       } else {
-        alert(result.data.Error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.data.Error,
+        });
       }
     } catch (err) {
       console.error("Error finalizing employee:", err);
@@ -152,24 +172,47 @@ const Employee = () => {
     navigate(`/dashboard/admin/employee/reviewselect/${row.applicant_id}`);
   };
 
-  const handleDelete = (row) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete ${row.name}?`
-    );
-    if (!confirmDelete) return;
+  const handleDelete = async (row) => {
+    const confirmResult = await Swal.fire({
+      title: `Are you sure?`,
+      text: `Do you really want to delete ${row.name}? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "No, cancel",
+    });
+
+    if (!confirmResult.isConfirmed) return;
 
     axios
       .delete(`http://localhost:3000/auth/delete_employee/${row.applicant_id}`)
       .then((result) => {
         if (result.data.Status) {
-          alert("Employee deleted");
+          Swal.fire({
+            icon: "success",
+            title: "Deleted",
+            text: "Employee deleted",
+          });
+
           fetchEmployees();
         } else {
-          alert(result.data.Error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: result.data.Error,
+          });
         }
       })
-      .catch((err) => console.error("Error deleting employee:", err));
+      .catch((err) => {
+        console.error("Error deleting employee:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Delete Failed",
+          text: "Something went wrong while deleting the employee.",
+        });
+      });
   };
+
   const fetchEmployees = async () => {
     try {
       const result = await axios.get(`http://localhost:3000/auth/all_employee`);
@@ -211,7 +254,11 @@ const Employee = () => {
           [actionColumn, statusColumn, ...baseColumns].filter(Boolean)
         );
       } else {
-        alert(result.data.Error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.data.Error,
+        });
       }
     } catch (err) {
       console.error("Error fetching employees:", err);
@@ -233,10 +280,19 @@ const Employee = () => {
       .post(`http://localhost:3000/auth/add_selected_employee`, row)
       .then((result) => {
         if (result.data.Status) {
-          alert(`Employee selected`);
+          Swal.fire({
+            icon: "info",
+            title: "Employee Selected",
+            text: "Employee selected",
+          });
+
           fetchEmployees();
         } else {
-          alert(result.data.Error);
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: result.data.Error,
+          });
         }
       })
       .catch((err) => console.log(err));
@@ -275,14 +331,14 @@ const Employee = () => {
           className="btn btn-success"
           onClick={() => downloadExcel(allEmployees, "All_Employees")}
         >
-          Download All Employees
+          Download All Candidates
         </button>
 
         <button
           className="btn btn-success"
           onClick={() => downloadExcel(employee, "Filtered_Employees")}
         >
-          Download Filtered Employees
+          Download Filtered Candidates
         </button>
       </div>
 

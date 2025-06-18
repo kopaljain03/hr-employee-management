@@ -11,21 +11,30 @@ const Login = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   axios.defaults.withCredentials = true;
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    axios
-      .post("http://localhost:3000/auth/adminlogin", values)
-      .then((result) => {
-        if (result.data.loginStatus) {
-          localStorage.setItem("valid", true);
-          localStorage.setItem("role", result.data.role);
+ const handleSubmit = (event) => {
+  event.preventDefault();
+  axios
+    .post("http://localhost:3000/auth/login", values)
+    .then((result) => {
+      if (result.data.loginStatus) {
+        const role = result.data.role;
+        localStorage.setItem("valid", true);
+        localStorage.setItem("role", role);
+
+        if (role === "admin") {
           navigate("/dashboard/admin/employee");
+        } else if (role === "user") {
+          navigate("/dashboard/employee");
         } else {
-          setError(result.data.Error);
+          navigate("/unauthorized");
         }
-      })
-      .catch((err) => console.log(err));
-  };
+      } else {
+        setError(result.data.Error);
+      }
+    })
+    .catch((err) => console.log(err));
+};
+
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 loginPage">
